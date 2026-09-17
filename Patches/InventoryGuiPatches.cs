@@ -40,6 +40,7 @@ namespace WorkbenchesPlus
                 return;
 
             CategoryBar.Show(__instance);
+            CraftMultiplierBar.Show(__instance);
             InventoryRefreshHook.EnsureBound();
 
             if (Plugin.Settings.RefreshOnStationChange.Value)
@@ -112,6 +113,21 @@ namespace WorkbenchesPlus
         {
             InventoryRefreshHook.EnsureBound();
             CategoryBar.Show(__instance);
+            CraftMultiplierBar.Show(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(InventoryGui), "UpdateRecipe")]
+    internal static class UpdateRecipeMultiplierPatch
+    {
+        private static void Prefix(InventoryGui __instance)
+        {
+            CraftMultiplierBar.SyncBeforeUpdateRecipe(__instance);
+        }
+
+        private static void Postfix(InventoryGui __instance)
+        {
+            CraftMultiplierBar.SyncAfterUpdateRecipe(__instance);
         }
     }
 
@@ -122,6 +138,7 @@ namespace WorkbenchesPlus
         {
             InventoryRefreshHook.Detach();
             CategoryBar.Hide();
+            CraftMultiplierBar.Hide();
         }
     }
 }

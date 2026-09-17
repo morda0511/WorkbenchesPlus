@@ -17,6 +17,8 @@ namespace WorkbenchesPlus
         public ConfigEntry<bool> RefreshOnInventoryChange { get; }
         public ConfigEntry<bool> RefreshOnStationChange { get; }
         public ConfigEntry<bool> ShowCraftabilityIndicators { get; }
+        public ConfigEntry<bool> EnableCraftMultiplier { get; }
+        public ConfigEntry<int> MaxCraftMultiplier { get; }
         public ConfigEntry<bool> DebugLogging { get; }
 
         public ModConfig(ConfigFile file)
@@ -48,6 +50,10 @@ namespace WorkbenchesPlus
                 "Reset category to All when switching crafting stations.");
             ShowCraftabilityIndicators = file.Bind("5 - UI", "ShowCraftabilityIndicators", false,
                 "Show a small green checkmark on fully craftable recipe rows.");
+            EnableCraftMultiplier = file.Bind("5 - UI", "EnableCraftMultiplier", true,
+                "Show up/down arrows beside the Craft button for multi-craft amount.");
+            MaxCraftMultiplier = file.Bind("5 - UI", "MaxCraftMultiplier", 99,
+                "Upper cap for the craft multiplier (materials still limit how high you can go).");
             DebugLogging = file.Bind("9 - Debug", "DebugLogging", false,
                 "Extra log lines for sorting decisions (set keys, order).");
         }

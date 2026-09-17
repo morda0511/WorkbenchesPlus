@@ -332,6 +332,12 @@ namespace WorkbenchesPlus
             HarmonyLib.AccessTools.Field(typeof(InventoryGui), "m_recipeListRoot");
         private static readonly System.Reflection.FieldInfo RepairButtonField =
             HarmonyLib.AccessTools.Field(typeof(InventoryGui), "m_repairButton");
+        private static readonly System.Reflection.FieldInfo CraftButtonField =
+            HarmonyLib.AccessTools.Field(typeof(InventoryGui), "m_craftButton");
+        private static readonly System.Reflection.FieldInfo QualityLevelUpField =
+            HarmonyLib.AccessTools.Field(typeof(InventoryGui), "m_qualityLevelUp");
+        private static readonly System.Reflection.FieldInfo QualityLevelDownField =
+            HarmonyLib.AccessTools.Field(typeof(InventoryGui), "m_qualityLevelDown");
         private static readonly System.Reflection.MethodInfo UpdateCraftingPanel =
             HarmonyLib.AccessTools.Method(typeof(InventoryGui), "UpdateCraftingPanel", new[] { typeof(bool) });
 
@@ -351,6 +357,28 @@ namespace WorkbenchesPlus
                 return null;
             Button btn = RepairButtonField.GetValue(gui) as Button;
             return btn != null ? btn.transform as RectTransform : null;
+        }
+
+        public static RectTransform CraftButton(InventoryGui gui)
+        {
+            if (CraftButtonField == null || gui == null)
+                return null;
+            Button btn = CraftButtonField.GetValue(gui) as Button;
+            return btn != null ? btn.transform as RectTransform : null;
+        }
+
+        public static Button QualityLevelUp(InventoryGui gui)
+        {
+            if (QualityLevelUpField == null || gui == null)
+                return null;
+            return QualityLevelUpField.GetValue(gui) as Button;
+        }
+
+        public static Button QualityLevelDown(InventoryGui gui)
+        {
+            if (QualityLevelDownField == null || gui == null)
+                return null;
+            return QualityLevelDownField.GetValue(gui) as Button;
         }
 
         public static void RebuildCraftingPanel()

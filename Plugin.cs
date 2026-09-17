@@ -10,7 +10,7 @@ namespace WorkbenchesPlus
     {
         public const string ModGuid = "com.morda.workbenchesplus";
         public const string ModName = "Workbenches+";
-        public const string ModVersion = "1.0.0";
+        public const string ModVersion = "1.0.1";
         public const string ModAuthor = "Morda";
 
         internal static Plugin Instance { get; private set; }
