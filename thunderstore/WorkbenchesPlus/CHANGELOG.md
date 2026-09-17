@@ -2,13 +2,19 @@
 
 ## 1.0.1
 
+### NEW FEATURES
 - Craft multiplier arrows beside the Craft button
-- Craftable-first sorting keeps uncraftable set pieces below craftable ones
 - Weapon material grouping with biome / tier order
+
+### UI IMPROVEMENTS
 - Category chips and armor set grouping refinements
+
+### FIX
+- Craftable-first sorting keeps uncraftable set pieces below craftable ones
 
 ## 1.0.0
 
+### NEW FEATURES
 - Craftable-first sorting (per recipe; uncraftable set pieces stay below)
 - Armor set grouping and weapon material grouping
 - Biome / material tier order for armor and weapons
