@@ -10,7 +10,6 @@ Does **not** change recipes or crafting logic.
 - Category chips (All, Weapons, Armor, Shields, Tools, …) for the current station
 - Armor set grouping + weapon material grouping (Iron, Black Metal, Bronze, …)
 - Biome / material tier order (Copper → Bronze → Iron → …)
-- Sort modes via config
 
 ## Install
 
