@@ -1,22 +1,21 @@
 # Workbenches+
 
-Valheim QoL mod that sorts and filters crafting station recipe lists. Craftable first, category chips, armor and weapon material groups, biome/tier ordering.
+Sort and filter Valheim crafting menus: craftable first, category chips, armor sets and weapon materials grouped by biome tier.
 
-Does **not** change recipes, crafting logic, or duplicate list entries.
+Does **not** change recipes or crafting logic.
 
 ## Features
 
-- **Craftable first** — only fully craftable rows rise to the top; uncraftable set mates stay below
-- **Category chips** — All / Weapons / Armor / Shields / Tools / Building / Furniture / Food / Potions / Materials / Misc (station-scoped)
-- **Armor set grouping** — helmet / chest / legs / cape from the same set stay together
-- **Weapon material grouping** — Iron with Iron, Black Metal with Black Metal, etc.
-- **Biome / tier order** — Copper → Bronze → Iron → Silver → Black Metal → …
+- Craftable recipes first (uncraftable set pieces stay below)
+- Category chips (All, Weapons, Armor, Shields, Tools, …) for the current station
+- Armor set grouping + weapon material grouping (Iron, Black Metal, Bronze, …)
+- Biome / material tier order (Copper → Bronze → Iron → …)
 
-## Install
 
-1. Install BepInEx for Valheim
-2. Copy `WorkbenchesPlus.dll` into `BepInEx/plugins/WorkbenchesPlus/`
-3. Launch once to generate `BepInEx/config/com.morda.workbenchesplus.cfg`
+## Links
+
+- GitHub: https://github.com/morda0511/WorkbenchesPlus
+- Discord: https://discord.gg/KGM8rjAfT
 
 ## License
 

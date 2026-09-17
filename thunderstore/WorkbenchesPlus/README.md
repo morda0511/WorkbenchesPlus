@@ -11,15 +11,11 @@ Does **not** change recipes or crafting logic.
 - Armor set grouping + weapon material grouping (Iron, Black Metal, Bronze, …)
 - Biome / material tier order (Copper → Bronze → Iron → …)
 
-## Install
-
-Requires [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/).
-
-Launch once to generate `BepInEx/config/com.morda.workbenchesplus.cfg`.
 
 ## Links
 
 - GitHub: https://github.com/morda0511/WorkbenchesPlus
+- Discord: https://discord.gg/KGM8rjAfT
 
 ## License
 
