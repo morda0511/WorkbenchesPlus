@@ -122,6 +122,14 @@ namespace WorkbenchesPlus
             if (string.IsNullOrEmpty(prefab))
                 return null;
 
+            if (prefab.Equals("HelmetDrake", System.StringComparison.OrdinalIgnoreCase))
+                return "ArmorWolf";
+
+            if (prefab.Equals("HelmetBerserkerUndead", System.StringComparison.OrdinalIgnoreCase)
+                || prefab.Equals("ArmorBerserkerUndeadChest", System.StringComparison.OrdinalIgnoreCase)
+                || prefab.Equals("ArmorBerserkerUndeadLegs", System.StringComparison.OrdinalIgnoreCase))
+                return "ArmorVilebone";
+
             // HelmetBronze → ArmorBronze (set helmets). Standalone hats keep Helmet*
             if (prefab.StartsWith("Helmet", System.StringComparison.OrdinalIgnoreCase) && prefab.Length > 6)
             {
@@ -247,8 +255,8 @@ namespace WorkbenchesPlus
 
         private static bool IsStandaloneHelmet(string rest)
         {
-            return rest.Equals("Drake", System.StringComparison.OrdinalIgnoreCase)
-                || rest.Equals("Yule", System.StringComparison.OrdinalIgnoreCase)
+            // Drake is grouped with Wolf — not a standalone set.
+            return rest.Equals("Yule", System.StringComparison.OrdinalIgnoreCase)
                 || rest.Equals("Dverger", System.StringComparison.OrdinalIgnoreCase)
                 || rest.Equals("Fisherman", System.StringComparison.OrdinalIgnoreCase)
                 || rest.Equals("Hat", System.StringComparison.OrdinalIgnoreCase)

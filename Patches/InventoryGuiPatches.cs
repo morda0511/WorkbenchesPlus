@@ -10,22 +10,37 @@ namespace WorkbenchesPlus
     {
         private static void Prefix(List<Recipe> recipes)
         {
-            if (recipes == null)
-                return;
-            if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
-                return;
+            try
+            {
+                if (recipes == null)
+                    return;
+                if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
+                    return;
 
-            RecipeSort.Apply(recipes);
+                RecipeSort.Apply(recipes);
+            }
+            catch (System.Exception ex)
+            {
+                if (Plugin.Log != null)
+                    Plugin.Log.LogWarning("UpdateRecipeList Prefix: " + ex.Message);
+            }
         }
 
         private static void Postfix(InventoryGui __instance)
         {
-            if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
-                return;
+            try
+            {
+                if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
+                    return;
 
-            // Vanilla can ignore Prefix order — force row order after the list is built.
-            RecipeSort.ReorderGui(__instance);
-            CraftabilityIndicators.Apply(__instance);
+                RecipeSort.ReorderGui(__instance);
+                CraftabilityIndicators.Apply(__instance);
+            }
+            catch (System.Exception ex)
+            {
+                if (Plugin.Log != null)
+                    Plugin.Log.LogWarning("UpdateRecipeList Postfix: " + ex.Message);
+            }
         }
     }
 
@@ -34,25 +49,51 @@ namespace WorkbenchesPlus
     {
         private static CraftingStation _lastStation;
 
-        private static void Postfix(InventoryGui __instance)
+        /// <summary>
+        /// Reset category before the recipe list is built. Never rebuild from Postfix
+        /// (nested UpdateCraftingPanel could freeze the crafting UI).
+        /// </summary>
+        private static void Prefix()
         {
-            if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
-                return;
-
-            CategoryBar.Show(__instance);
-            CraftMultiplierBar.Show(__instance);
-            InventoryRefreshHook.EnsureBound();
-
-            if (Plugin.Settings.RefreshOnStationChange.Value)
+            try
             {
+                if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
+                    return;
+                if (!Plugin.Settings.RefreshOnStationChange.Value)
+                    return;
+
                 Player player = Player.m_localPlayer;
                 CraftingStation station = player != null ? player.GetCurrentCraftingStation() : null;
-                if (station != _lastStation)
-                {
-                    _lastStation = station;
-                    if (CategoryBar.Active != CraftCategory.All)
-                        CategoryBar.SetActive(CraftCategory.All);
-                }
+                if (station == _lastStation)
+                    return;
+
+                _lastStation = station;
+                if (CategoryBar.Active != CraftCategory.All)
+                    CategoryBar.SetActive(CraftCategory.All, rebuild: false);
+            }
+            catch (System.Exception ex)
+            {
+                if (Plugin.Log != null)
+                    Plugin.Log.LogWarning("UpdateCraftingPanel Prefix: " + ex.Message);
+            }
+        }
+
+        private static void Postfix(InventoryGui __instance)
+        {
+            try
+            {
+                if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
+                    return;
+
+                CategoryBar.Show(__instance);
+                CraftMultiplierBar.Show(__instance);
+                DismantleTab.Show(__instance);
+                InventoryRefreshHook.EnsureBound();
+            }
+            catch (System.Exception ex)
+            {
+                if (Plugin.Log != null)
+                    Plugin.Log.LogWarning("UpdateCraftingPanel Postfix: " + ex.Message);
             }
         }
     }
@@ -61,9 +102,18 @@ namespace WorkbenchesPlus
     {
         private static readonly MethodInfo UpdateCraftingPanel =
             AccessTools.Method(typeof(InventoryGui), "UpdateCraftingPanel", new[] { typeof(bool) });
+        private static readonly FieldInfo CraftTimerField =
+            AccessTools.Field(typeof(InventoryGui), "m_craftTimer");
+        private static readonly FieldInfo CraftRecipeField =
+            AccessTools.Field(typeof(InventoryGui), "m_craftRecipe");
+
+        private const float DebounceSeconds = 0.2f;
 
         private static Inventory _bound;
         private static bool _hooked;
+        private static bool _refreshing;
+        private static bool _pending;
+        private static float _pendingAt;
 
         public static void EnsureBound()
         {
@@ -89,10 +139,36 @@ namespace WorkbenchesPlus
                 _bound.m_onChanged -= OnInventoryChanged;
             _bound = null;
             _hooked = false;
+            _pending = false;
+        }
+
+        /// <summary>
+        /// Coalesce inventory churn (multi-craft adds items one-by-one) into one panel rebuild
+        /// after crafting finishes / inventory goes quiet.
+        /// </summary>
+        public static void Tick(InventoryGui gui)
+        {
+            if (!_pending || gui == null)
+                return;
+            if (_refreshing || AccessToolsExt.IsRebuilding)
+                return;
+            if (IsCraftInProgress(gui))
+            {
+                // Keep deferring until the craft batch is done.
+                _pendingAt = UnityEngine.Time.unscaledTime + DebounceSeconds;
+                return;
+            }
+            if (UnityEngine.Time.unscaledTime < _pendingAt)
+                return;
+
+            _pending = false;
+            DoRefresh(gui);
         }
 
         private static void OnInventoryChanged()
         {
+            if (_refreshing || AccessToolsExt.IsRebuilding)
+                return;
             if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
                 return;
             if (!Plugin.Settings.RefreshOnInventoryChange.Value)
@@ -101,8 +177,67 @@ namespace WorkbenchesPlus
             InventoryGui gui = InventoryGui.instance;
             if (gui == null || !gui.isActiveAndEnabled)
                 return;
-            if (UpdateCraftingPanel != null)
+
+            // Never rebuild mid multi-craft — schedule one refresh after it settles.
+            _pending = true;
+            _pendingAt = UnityEngine.Time.unscaledTime + DebounceSeconds;
+        }
+
+        private static bool IsCraftInProgress(InventoryGui gui)
+        {
+            try
+            {
+                if (CraftRecipeField != null && CraftRecipeField.GetValue(gui) != null)
+                    return true;
+                if (CraftTimerField != null)
+                {
+                    object t = CraftTimerField.GetValue(gui);
+                    if (t is float f && f > 0.01f)
+                        return true;
+                }
+            }
+            catch
+            {
+            }
+            return false;
+        }
+
+        private static void DoRefresh(InventoryGui gui)
+        {
+            if (UpdateCraftingPanel == null || gui == null)
+                return;
+
+            _refreshing = true;
+            try
+            {
                 UpdateCraftingPanel.Invoke(gui, new object[] { false });
+            }
+            catch (System.Exception ex)
+            {
+                if (Plugin.Log != null)
+                    Plugin.Log.LogWarning("Inventory refresh: " + ex.Message);
+            }
+            finally
+            {
+                _refreshing = false;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(InventoryGui), "Update")]
+    internal static class InventoryGuiUpdateRefreshPatch
+    {
+        private static void Postfix(InventoryGui __instance)
+        {
+            try
+            {
+                InventoryRefreshHook.Tick(__instance);
+                if (DismantleMode.Active)
+                    DismantleTab.RefreshVisuals(__instance);
+            }
+            catch
+            {
+            }
         }
     }
 
@@ -111,9 +246,18 @@ namespace WorkbenchesPlus
     {
         private static void Postfix(InventoryGui __instance)
         {
-            InventoryRefreshHook.EnsureBound();
-            CategoryBar.Show(__instance);
-            CraftMultiplierBar.Show(__instance);
+            try
+            {
+                InventoryRefreshHook.EnsureBound();
+                CategoryBar.Show(__instance);
+                CraftMultiplierBar.Show(__instance);
+                DismantleTab.Show(__instance);
+            }
+            catch (System.Exception ex)
+            {
+                if (Plugin.Log != null)
+                    Plugin.Log.LogWarning("InventoryGui.Show: " + ex.Message);
+            }
         }
     }
 
@@ -122,12 +266,24 @@ namespace WorkbenchesPlus
     {
         private static void Prefix(InventoryGui __instance)
         {
-            CraftMultiplierBar.SyncBeforeUpdateRecipe(__instance);
+            try
+            {
+                CraftMultiplierBar.SyncBeforeUpdateRecipe(__instance);
+            }
+            catch
+            {
+            }
         }
 
         private static void Postfix(InventoryGui __instance)
         {
-            CraftMultiplierBar.SyncAfterUpdateRecipe(__instance);
+            try
+            {
+                CraftMultiplierBar.SyncAfterUpdateRecipe(__instance);
+            }
+            catch
+            {
+            }
         }
     }
 
@@ -136,9 +292,17 @@ namespace WorkbenchesPlus
     {
         private static void Prefix()
         {
-            InventoryRefreshHook.Detach();
-            CategoryBar.Hide();
-            CraftMultiplierBar.Hide();
+            try
+            {
+                InventoryRefreshHook.Detach();
+                CategoryBar.Hide();
+                CraftMultiplierBar.Hide();
+                DismantleTab.Hide();
+                MaterialSectionHeaders.Clear();
+            }
+            catch
+            {
+            }
         }
     }
 }

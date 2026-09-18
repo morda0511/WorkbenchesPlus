@@ -13,11 +13,14 @@ Sort and filter station recipes so craftable items rise first, categories sit un
 
 ## Features
 
-### Craftable first
+### Dismantle
 
-- Recipes you can craft now sit at the top.
-- Partial materials next, then the rest.
-- Uncraftable set pieces stay below craftable ones.
+- New tab beside Craft / Upgrade on workbenches.
+- Break station-crafted items back into their crafting materials.
+
+### Material labels
+
+- Materials are sorted by labels.
 
 ### Category chips
 
@@ -68,6 +71,7 @@ Sort and filter station recipes so craftable items rise first, categories sit un
 | `ShowCraftabilityIndicators` | Green check on fully craftable rows |
 | `EnableCraftMultiplier` | Multi-craft arrows beside Craft |
 | `MaxCraftMultiplier` | Max multi-craft amount |
+| `EnableDismantle` | Dismantle tab beside Craft / Upgrade |
 | `DebugLogging` | Extra logs |
 
 ---

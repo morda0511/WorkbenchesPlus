@@ -45,9 +45,10 @@ namespace WorkbenchesPlus
         public static void Show(InventoryGui gui)
         {
             if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value
-                || !Plugin.Settings.EnableCraftMultiplier.Value)
+                || !Plugin.Settings.EnableCraftMultiplier.Value
+                || DismantleMode.Active)
             {
-                Hide();
+                ForceHideArrows();
                 return;
             }
 
@@ -79,16 +80,22 @@ namespace WorkbenchesPlus
 
         public static void Hide()
         {
-            RestoreCraftSize();
-            if (_root != null)
-                _root.SetActive(false);
+            ForceHideArrows();
             _amount = 1;
             _trackedRecipe = null;
         }
 
-        public static void Destroy()
+        /// <summary>Hide arrows and restore Craft width without resetting multiplier amount.</summary>
+        public static void ForceHideArrows()
         {
             RestoreCraftSize();
+            if (_root != null)
+                _root.SetActive(false);
+        }
+
+        public static void Destroy()
+        {
+            ForceHideArrows();
             DestroyUi();
             _amount = 1;
             _trackedRecipe = null;
@@ -100,7 +107,8 @@ namespace WorkbenchesPlus
         public static void SyncBeforeUpdateRecipe(InventoryGui gui)
         {
             if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value
-                || !Plugin.Settings.EnableCraftMultiplier.Value)
+                || !Plugin.Settings.EnableCraftMultiplier.Value
+                || DismantleMode.Active)
                 return;
             if (gui == null || MultiCraftAmountField == null || TouchMultiCraftingField == null)
                 return;

@@ -12,21 +12,23 @@ namespace WorkbenchesPlus
         private static readonly string[] TierOrder =
         {
             // Meadows / early
-            "Wood", "FineWood", "Flint", "Bone", "Rags", "Rag", "Leather",
+            "Wood", "FineWood", "Flint", "Stone", "Bone", "Rags", "Rag", "Leather",
             // Black Forest
-            "Copper", "TrollLeather", "Troll", "Bronze", "HardAntler", "Antler",
+            "Copper", "TrollLeather", "Troll", "Bronze", "Banded", "HardAntler", "Antler",
             // Swamp
-            "Iron", "Root", "Ancient", "Abyssal", "Chitin",
+            "Iron", "Root", "Ancient", "Abyssal", "Chitin", "Serpentscale", "Serpent",
             // Mountain
-            "Silver", "Wolf", "Fenring", "Fenris", "Frost", "Crystal", "Obsidian", "Drake",
+            "Silver", "Wolf", "Fenrir", "Fenring", "Fenris", "Frost", "Crystal", "Obsidian", "Drake", "Lox", "Berserker", "Bear",
             // Plains
             "BlackMetal", "Padded", "Needle", "Fang", "Porcupine",
             // Mistlands
-            "Carapace", "Eitr", "Mage", "Himmin", "Mist", "Dvergr",
+            "Carapace", "Eitr", "Mage", "Himmin", "Mist", "Dvergr", "Vilebone",
             // Ashlands
             "Flametal", "Ashlands", "Asksvin", "Embla", "Blood", "Bile", "Ooze",
             // Elemental / misc ammo & specials (late-ish within their biome, after metals)
-            "Fire", "Poison", "Huntsman", "Draugr"
+            "Fire", "Poison",
+            // Workbench utility groups
+            "Bomb", "Firework", "Potion", "Skol", "Cape", "Clothes", "Furniture", "Misc", "Special"
         };
 
         private static readonly Dictionary<string, int> IndexByMaterial =
@@ -37,7 +39,7 @@ namespace WorkbenchesPlus
             if (string.IsNullOrEmpty(setKey))
                 return 10000;
 
-            string mat = StripPrefix(setKey);
+            string mat = MaterialName(setKey);
             if (string.IsNullOrEmpty(mat))
                 return 9000;
 
@@ -57,11 +59,21 @@ namespace WorkbenchesPlus
             return 8000;
         }
 
+        /// <summary>WeaponBlackMetal / ArmorIron / ToolBronze → BlackMetal / Iron / Bronze.</summary>
+        public static string MaterialName(string setKey)
+        {
+            return StripPrefix(setKey);
+        }
+
         private static string StripPrefix(string setKey)
         {
             string s = setKey;
             if (s.StartsWith("Weapon", System.StringComparison.OrdinalIgnoreCase))
                 s = s.Substring("Weapon".Length);
+            else if (s.StartsWith("Tool", System.StringComparison.OrdinalIgnoreCase))
+                s = s.Substring("Tool".Length);
+            else if (s.StartsWith("Shield", System.StringComparison.OrdinalIgnoreCase))
+                s = s.Substring("Shield".Length);
             else if (s.StartsWith("Armor", System.StringComparison.OrdinalIgnoreCase))
                 s = s.Substring("Armor".Length);
             else if (s.StartsWith("Cape", System.StringComparison.OrdinalIgnoreCase))

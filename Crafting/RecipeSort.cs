@@ -12,11 +12,13 @@ namespace WorkbenchesPlus
         {
             public Recipe Recipe;
             public int OriginalIndex;
+            public int AmmoFirst;
             public int CraftBucket;
             public int MaterialPct;
             public int StationLevel;
             public int CategoryOrder;
             public string SetKey;
+            public string MaterialBucket;
             public int PieceOrder;
             public string SortName;
         }
@@ -33,25 +35,38 @@ namespace WorkbenchesPlus
             if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
                 return;
 
-            // "All" = everything for the current station only (never forge+cauldron+workbench mixed).
-            StationFilter.Apply(recipes);
+            // Dismantle already built a station-filtered inventory list — do not strip it again
+            // (and keep DismantleMode.Items indices aligned with recipes).
+            if (!DismantleMode.Active)
+            {
+                StationFilter.Apply(recipes);
 
-            if (Plugin.Settings.EnableCategories.Value)
-                CategoryBar.SyncAvailable(recipes);
+                if (Plugin.Settings.EnableCategories.Value)
+                    CategoryBar.SyncAvailable(recipes);
+
+                if (recipes.Count == 0)
+                    return;
+
+                if (Plugin.Settings.EnableCategories.Value && CategoryBar.Active != CraftCategory.All)
+                {
+                    for (int i = recipes.Count - 1; i >= 0; i--)
+                    {
+                        if (!RecipeCategories.Matches(recipes[i], CategoryBar.Active))
+                            recipes.RemoveAt(i);
+                    }
+                }
+            }
 
             if (recipes.Count == 0)
                 return;
 
-            if (Plugin.Settings.EnableCategories.Value && CategoryBar.Active != CraftCategory.All)
+            if (DismantleMode.Active)
             {
-                for (int i = recipes.Count - 1; i >= 0; i--)
-                {
-                    if (!RecipeCategories.Matches(recipes[i], CategoryBar.Active))
-                        recipes.RemoveAt(i);
-                }
+                // Keep recipes and inventory items on the same indices.
+                DismantleMode.SortPaired(recipes);
+                return;
             }
 
-            // Prefix order is only a hint — vanilla re-sorts RecipeDataPair and lays out by Y.
             SortInPlace(recipes);
         }
 
@@ -62,24 +77,41 @@ namespace WorkbenchesPlus
         public static void ReorderGui(InventoryGui gui)
         {
             if (gui == null || Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
+            {
+                MaterialSectionHeaders.Clear();
                 return;
+            }
             if (Plugin.Settings.IsVanillaOrder())
+            {
+                MaterialSectionHeaders.Clear();
                 return;
+            }
+            // Dismantle list is already paired+sorted; do not reshuffle rows.
+            if (DismantleMode.Active)
+            {
+                MaterialSectionHeaders.Clear();
+                return;
+            }
             if (AvailableRecipesField == null)
                 return;
 
             IList pairs = AvailableRecipesField.GetValue(gui) as IList;
-            if (pairs == null || pairs.Count <= 1)
+            if (pairs == null || pairs.Count == 0)
+            {
+                MaterialSectionHeaders.Clear();
                 return;
+            }
 
             var recipes = new List<Recipe>(pairs.Count);
             var pairByRecipe = new List<object>(pairs.Count);
+            var elements = new List<GameObject>(pairs.Count);
             for (int i = 0; i < pairs.Count; i++)
             {
                 object pair = pairs[i];
                 Recipe r = ReadRecipe(pair);
                 recipes.Add(r);
                 pairByRecipe.Add(pair);
+                elements.Add(ReadElement(pair));
             }
 
             var order = new List<int>(recipes.Count);
@@ -88,7 +120,9 @@ namespace WorkbenchesPlus
 
             var entries = BuildEntries(recipes);
             bool groupArmor = Plugin.Settings.EnableArmorSetGrouping.Value
-                || Plugin.Settings.EnableWeaponSetGrouping.Value;
+                || Plugin.Settings.EnableWeaponSetGrouping.Value
+                || Plugin.Settings.EnableToolSetGrouping.Value
+                || Plugin.Settings.EnableShieldSetGrouping.Value;
             bool craftBuckets = Plugin.Settings.UseCraftBuckets();
             bool alphabetical = Plugin.Settings.IsAlphabetical();
             bool progression = Plugin.Settings.IsProgression();
@@ -106,32 +140,41 @@ namespace WorkbenchesPlus
                     space = f;
             }
 
-            // Rebuild list order, then apply the same Y layout vanilla uses.
             pairs.Clear();
+            var orderedRecipes = new List<Recipe>(order.Count);
+            var orderedElements = new List<GameObject>(order.Count);
+            Transform listParent = null;
+
             for (int i = 0; i < order.Count; i++)
             {
-                object pair = pairByRecipe[order[i]];
+                int idx = order[i];
+                object pair = pairByRecipe[idx];
                 pairs.Add(pair);
-                GameObject go = ReadElement(pair);
-                if (go == null)
-                    continue;
-                RectTransform rt = go.transform as RectTransform;
-                if (rt == null)
-                    continue;
-                rt.anchoredPosition = new Vector2(0f, -i * space);
-                rt.SetSiblingIndex(i);
+                orderedRecipes.Add(recipes[idx]);
+                GameObject go = elements[idx];
+                orderedElements.Add(go);
+                if (listParent == null && go != null)
+                    listParent = go.transform.parent;
             }
+
+            MaterialSectionHeaders.Apply(
+                listParent,
+                orderedRecipes,
+                orderedElements,
+                space);
 
             if (Plugin.Settings.DebugLogging.Value)
             {
                 Plugin.Log.LogInfo("ReorderGui rows=" + pairs.Count + " space=" + space);
-                int n = System.Math.Min(10, order.Count);
+                int n = System.Math.Min(12, order.Count);
                 for (int i = 0; i < n; i++)
                 {
                     Entry e = entries[order[i]];
                     Plugin.Log.LogInfo("  #" + i + " set=" + (e.SetKey ?? "-")
-                        + " tier=" + MaterialProgression.Tier(e.SetKey)
-                        + " bucket=" + e.CraftBucket
+                        + " bucket=" + (e.MaterialBucket ?? "-")
+                        + " ammo=" + e.AmmoFirst
+                        + " tier=" + MaterialNameBucket.Tier(e.MaterialBucket)
+                        + " bucketCraft=" + e.CraftBucket
                         + " piece=" + e.PieceOrder
                         + " name=" + e.SortName);
                 }
@@ -147,7 +190,9 @@ namespace WorkbenchesPlus
 
             var entries = BuildEntries(recipes);
             bool groupArmor = Plugin.Settings.EnableArmorSetGrouping.Value
-                || Plugin.Settings.EnableWeaponSetGrouping.Value;
+                || Plugin.Settings.EnableWeaponSetGrouping.Value
+                || Plugin.Settings.EnableToolSetGrouping.Value
+                || Plugin.Settings.EnableShieldSetGrouping.Value;
             bool craftBuckets = Plugin.Settings.UseCraftBuckets();
             bool alphabetical = Plugin.Settings.IsAlphabetical();
             bool progression = Plugin.Settings.IsProgression();
@@ -166,8 +211,12 @@ namespace WorkbenchesPlus
             Player player = Player.m_localPlayer;
             string[] armorOrder = ArmorSetDetector.ParseOrder(Plugin.Settings.ArmorPieceOrder.Value);
             string[] weaponOrder = WeaponSetDetector.ParseOrder(Plugin.Settings.WeaponPieceOrder.Value);
+            string[] toolOrder = ToolSetDetector.ParseOrder(Plugin.Settings.ToolPieceOrder.Value);
+            string[] shieldOrder = ShieldSetDetector.ParseOrder(Plugin.Settings.ShieldPieceOrder.Value);
             bool groupArmor = Plugin.Settings.EnableArmorSetGrouping.Value;
             bool groupWeapons = Plugin.Settings.EnableWeaponSetGrouping.Value;
+            bool groupTools = Plugin.Settings.EnableToolSetGrouping.Value;
+            bool groupShields = Plugin.Settings.EnableShieldSetGrouping.Value;
             bool groupModdedArmor = Plugin.Settings.GroupModdedArmorSets.Value;
             bool groupModdedWeapons = Plugin.Settings.GroupModdedWeaponSets.Value;
             bool craftBuckets = Plugin.Settings.UseCraftBuckets();
@@ -189,20 +238,45 @@ namespace WorkbenchesPlus
 
                 if (string.IsNullOrEmpty(setKey) && groupWeapons)
                 {
-                    setKey = WeaponSetDetector.SetKey(r, groupModdedWeapons);
-                    if (!string.IsNullOrEmpty(setKey))
+                    // All arrows/bolts share one group — do not split by Wood/Iron/Bronze.
+                    if (WeaponSetDetector.IsAmmo(r))
+                    {
+                        setKey = "WeaponAmmo";
                         pieceOrder = WeaponSetDetector.PieceOrder(r, weaponOrder);
+                    }
+                    else
+                    {
+                        setKey = WeaponSetDetector.SetKey(r, groupModdedWeapons);
+                        if (!string.IsNullOrEmpty(setKey))
+                            pieceOrder = WeaponSetDetector.PieceOrder(r, weaponOrder);
+                    }
+                }
+
+                if (string.IsNullOrEmpty(setKey) && groupTools)
+                {
+                    setKey = ToolSetDetector.SetKey(r, groupModdedWeapons);
+                    if (!string.IsNullOrEmpty(setKey))
+                        pieceOrder = ToolSetDetector.PieceOrder(r, toolOrder);
+                }
+
+                if (string.IsNullOrEmpty(setKey) && groupShields)
+                {
+                    setKey = ShieldSetDetector.SetKey(r, groupModdedWeapons);
+                    if (!string.IsNullOrEmpty(setKey))
+                        pieceOrder = ShieldSetDetector.PieceOrder(r, shieldOrder);
                 }
 
                 entries.Add(new Entry
                 {
                     Recipe = r,
                     OriginalIndex = i,
+                    AmmoFirst = WeaponSetDetector.IsAmmo(r) ? 0 : 1,
                     CraftBucket = craftBuckets ? Craftability.ScoreBucket(player, r) : 0,
                     MaterialPct = craftBuckets ? Craftability.MaterialPercent(player, r) : 0,
                     StationLevel = r != null ? r.m_minStationLevel : 0,
                     CategoryOrder = categoryThen ? (int)RecipeCategories.Classify(r) : 0,
                     SetKey = setKey,
+                    MaterialBucket = MaterialNameBucket.Resolve(r),
                     PieceOrder = pieceOrder,
                     SortName = DisplayName(r)
                 });
@@ -226,44 +300,52 @@ namespace WorkbenchesPlus
                     return c;
             }
 
-            // Per-item craftability first — never pull uncraftable set mates into the top.
-            if (craftBuckets)
+            // Craftable blocks first (with their own Bronze/Iron/… labels at the top),
+            // then uncraftable blocks (same labels again further down).
+            bool useBuckets = Plugin.Settings != null
+                && (Plugin.Settings.EnableMaterialSectionHeaders.Value
+                    || Plugin.Settings.EnableWeaponSetGrouping.Value
+                    || Plugin.Settings.EnableArmorSetGrouping.Value
+                    || Plugin.Settings.EnableToolSetGrouping.Value
+                    || Plugin.Settings.EnableShieldSetGrouping.Value);
+
+            if (useBuckets)
             {
-                int c = a.CraftBucket.CompareTo(b.CraftBucket);
-                if (c != 0)
-                    return c;
+                int bucketCmp = CompareNameBuckets(a, b, craftBuckets);
+                if (bucketCmp != 0)
+                    return bucketCmp;
             }
-
-            bool aSet = groupArmor && !string.IsNullOrEmpty(a.SetKey);
-            bool bSet = groupArmor && !string.IsNullOrEmpty(b.SetKey);
-
-            // Within the same craft tier: keep set pieces together, ordered by biome/material.
-            if (aSet && bSet)
+            else
             {
-                if (string.Equals(a.SetKey, b.SetKey, System.StringComparison.OrdinalIgnoreCase))
+                if (craftBuckets)
                 {
-                    int po = a.PieceOrder.CompareTo(b.PieceOrder);
-                    if (po != 0)
-                        return po;
-                    return string.Compare(a.SortName, b.SortName, System.StringComparison.OrdinalIgnoreCase);
+                    int c = a.CraftBucket.CompareTo(b.CraftBucket);
+                    if (c != 0)
+                        return c;
                 }
 
-                int ta = MaterialProgression.Tier(a.SetKey);
-                int tb = MaterialProgression.Tier(b.SetKey);
-                int tierCmp = ta.CompareTo(tb);
-                if (tierCmp != 0)
-                    return tierCmp;
+                if (groupArmor)
+                {
+                    int ammo = a.AmmoFirst.CompareTo(b.AmmoFirst);
+                    if (ammo != 0)
+                        return ammo;
+                }
 
-                int keyCmp = string.Compare(a.SetKey, b.SetKey, System.StringComparison.OrdinalIgnoreCase);
-                if (keyCmp != 0)
-                    return keyCmp;
-            }
-            else if (groupArmor && (aSet || bSet))
-            {
-                // Classified sets before leftovers inside this craft tier.
-                if (aSet)
-                    return -1;
-                return 1;
+                bool aSet = groupArmor && !string.IsNullOrEmpty(a.SetKey);
+                bool bSet = groupArmor && !string.IsNullOrEmpty(b.SetKey);
+
+                if (aSet && bSet)
+                {
+                    int mat = CompareMaterialThenPiece(a, b);
+                    if (mat != 0)
+                        return mat;
+                }
+                else if (groupArmor && (aSet || bSet))
+                {
+                    if (aSet)
+                        return -1;
+                    return 1;
+                }
             }
 
             if (craftBuckets)
@@ -285,6 +367,104 @@ namespace WorkbenchesPlus
                 return nameCmp;
 
             return a.OriginalIndex.CompareTo(b.OriginalIndex);
+        }
+
+        private static int CompareNameBuckets(Entry a, Entry b, bool craftBuckets)
+        {
+            // 1) Craftable tier first → craftable Bronze appears at the top of All.
+            if (craftBuckets)
+            {
+                int c = a.CraftBucket.CompareTo(b.CraftBucket);
+                if (c != 0)
+                    return c;
+            }
+
+            bool aHas = !string.IsNullOrEmpty(a.MaterialBucket);
+            bool bHas = !string.IsNullOrEmpty(b.MaterialBucket);
+            if (aHas != bHas)
+                return aHas ? -1 : 1;
+            if (!aHas)
+                return 0;
+
+            // 2) Within the same craft tier: material sections (Bronze, Iron, …).
+            if (!string.Equals(a.MaterialBucket, b.MaterialBucket, System.StringComparison.OrdinalIgnoreCase))
+            {
+                int ta = MaterialNameBucket.Tier(a.MaterialBucket);
+                int tb = MaterialNameBucket.Tier(b.MaterialBucket);
+                int tierCmp = ta.CompareTo(tb);
+                if (tierCmp != 0)
+                    return tierCmp;
+                return string.Compare(a.MaterialBucket, b.MaterialBucket, System.StringComparison.OrdinalIgnoreCase);
+            }
+
+            // 3) Same craft + same material: Tools → sort by inner material tier
+            //    (Antler / Bronze / Iron / Black metal), not craftable order inside the label.
+            if (a.MaterialBucket.Equals("Tools", System.StringComparison.OrdinalIgnoreCase))
+            {
+                int ta = MaterialNameBucket.NestedToolTier(a.Recipe);
+                int tb = MaterialNameBucket.NestedToolTier(b.Recipe);
+                int tierCmp = ta.CompareTo(tb);
+                if (tierCmp != 0)
+                    return tierCmp;
+            }
+
+            int kind = MaterialKind(a.SetKey).CompareTo(MaterialKind(b.SetKey));
+            if (kind != 0)
+                return kind;
+
+            int po = a.PieceOrder.CompareTo(b.PieceOrder);
+            if (po != 0)
+                return po;
+
+            return string.Compare(a.SortName, b.SortName, System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static int CompareMaterialThenPiece(Entry a, Entry b)
+        {
+            // Compare by material name (BlackMetal), not Weapon/Armor/Tool/Shield prefix,
+            // so All does not split the same tier into multiple blocks.
+            string matA = MaterialProgression.MaterialName(a.SetKey);
+            string matB = MaterialProgression.MaterialName(b.SetKey);
+
+            if (string.Equals(matA, matB, System.StringComparison.OrdinalIgnoreCase))
+            {
+                int kind = MaterialKind(a.SetKey).CompareTo(MaterialKind(b.SetKey));
+                if (kind != 0)
+                    return kind;
+
+                int po = a.PieceOrder.CompareTo(b.PieceOrder);
+                if (po != 0)
+                    return po;
+                return string.Compare(a.SortName, b.SortName, System.StringComparison.OrdinalIgnoreCase);
+            }
+
+            int ta = MaterialProgression.Tier(a.SetKey);
+            int tb = MaterialProgression.Tier(b.SetKey);
+            int tierCmp = ta.CompareTo(tb);
+            if (tierCmp != 0)
+                return tierCmp;
+
+            return string.Compare(matA, matB, System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>Stable order inside one material: ammo, weapons, shields, tools, armor.</summary>
+        private static int MaterialKind(string setKey)
+        {
+            if (string.IsNullOrEmpty(setKey))
+                return 50;
+            if (setKey.Equals("WeaponAmmo", System.StringComparison.OrdinalIgnoreCase))
+                return 0;
+            if (setKey.StartsWith("Weapon", System.StringComparison.OrdinalIgnoreCase))
+                return 1;
+            if (setKey.StartsWith("Shield", System.StringComparison.OrdinalIgnoreCase))
+                return 2;
+            if (setKey.StartsWith("Tool", System.StringComparison.OrdinalIgnoreCase))
+                return 3;
+            if (setKey.StartsWith("Armor", System.StringComparison.OrdinalIgnoreCase)
+                || setKey.StartsWith("Cape", System.StringComparison.OrdinalIgnoreCase)
+                || setKey.StartsWith("Helmet", System.StringComparison.OrdinalIgnoreCase))
+                return 4;
+            return 40;
         }
 
         private static string DisplayName(Recipe recipe)

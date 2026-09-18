@@ -68,6 +68,10 @@ namespace WorkbenchesPlus
             if (t == ItemDrop.ItemData.ItemType.Shield)
                 return CraftCategory.Shields;
 
+            // Pickaxes / hammers / hoes are tools even when Valheim tags them as weapons.
+            if (LooksToolPrefab(prefab))
+                return CraftCategory.Tools;
+
             if (t == ItemDrop.ItemData.ItemType.OneHandedWeapon
                 || t == ItemDrop.ItemData.ItemType.TwoHandedWeapon
                 || t == ItemDrop.ItemData.ItemType.Bow
@@ -128,6 +132,16 @@ namespace WorkbenchesPlus
             if (filter == CraftCategory.All)
                 return true;
             return Classify(recipe) == filter;
+        }
+
+        private static bool LooksToolPrefab(string prefab)
+        {
+            string p = prefab ?? "";
+            return p.IndexOf("Pickaxe", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || p.IndexOf("Hammer", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || p.IndexOf("Hoe", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || p.IndexOf("Cultivator", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || p.IndexOf("Scythe", System.StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static bool IsPotionLike(string prefab, string sharedName)

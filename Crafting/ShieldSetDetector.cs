@@ -4,45 +4,38 @@ using System.Text.RegularExpressions;
 namespace WorkbenchesPlus
 {
     /// <summary>
-    /// Groups weapons by material tier: Iron with Iron, BlackMetal with BlackMetal, etc.
-    /// Keys use a "Weapon" prefix so they never collide with armor set ids.
+    /// Groups shields by material tier: Wood / Bronze / Iron / BlackMetal, etc.
+    /// Keys use a "Shield" prefix so they never collide with weapon/armor/tool set ids.
     /// </summary>
-    internal static class WeaponSetDetector
+    internal static class ShieldSetDetector
     {
-        // Longer first (BlackMetal before Metal, Battleaxe before Axe, FineWood before Wood).
         private static readonly string[] MaterialStems =
         {
-            "BlackMetal", "Flametal", "Carapace", "Crystal", "Bronze", "Copper", "Silver",
-            "Iron", "Flint", "Chitin", "Bone", "Abyssal", "Needle", "FineWood", "Wood",
-            "Ooze", "Bile", "Frost", "Poison", "Fire", "Obsidian", "Ancient", "Draugr",
-            "Huntsman", "Fang", "Blood", "Mist", "Ashlands", "Asksvin", "Himmin"
+            "BlackMetal", "Flametal", "Carapace", "Serpentscale", "Serpent", "Crystal",
+            "Bronze", "Copper", "Silver", "Iron", "Banded", "Bone", "Chitin", "Abyssal",
+            "FineWood", "Wood", "Ancient", "Ashlands", "Asksvin", "Flametal"
         };
 
-        private static readonly string[] WeaponTypeTokens =
+        private static readonly string[] ShieldTypeTokens =
         {
-            "Battleaxe", "Crossbow", "Atgeir", "Sword", "Knife", "Spear", "Sledge",
-            "Mace", "Axe", "Bow", "Arrow", "Bolt", "Club", "Bomb", "Torch", "Pickaxe"
+            "TowerShield", "Shield"
         };
 
         private static readonly Regex SharedCleanup = new Regex(
             @"^\$?(item[_-]?)?",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private static readonly Regex SharedWeaponTrim = new Regex(
-            @"[_-]?(battleaxe|crossbow|atgeir|sword|knife|spear|sledge|mace|axe|bow|arrow|bolt|club|bomb|torch|pickaxe)$",
+        private static readonly Regex SharedShieldTrim = new Regex(
+            @"[_-]?(towershield|shield)$",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private static readonly Regex SharedWeaponPrefix = new Regex(
-            @"^(battleaxe|crossbow|atgeir|sword|knife|spear|sledge|mace|axe|bow|arrow|bolt|club|bomb)[_-]",
+        private static readonly Regex SharedShieldPrefix = new Regex(
+            @"^(towershield|shield)[_-]",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public static string SetKey(Recipe recipe, bool groupModded)
         {
-            if (recipe == null)
-                return null;
-
-            ItemDrop.ItemData.ItemType t = GetItemType(recipe);
-            if (!IsWeaponType(t))
+            if (recipe == null || !IsShield(recipe))
                 return null;
 
             string prefab = PrefabName(recipe) ?? "";
@@ -62,39 +55,14 @@ namespace WorkbenchesPlus
             if (string.IsNullOrEmpty(mat))
                 return null;
 
-            // Always group vanilla-looking weapon materials; odd mod names need the toggle.
-            if (!groupModded && !IsKnownMaterial(mat) && !LooksVanillaWeaponPrefab(prefab))
+            // Banded is the early bronze-era round shield
+            if (mat.Equals("Banded", System.StringComparison.OrdinalIgnoreCase))
+                mat = "Bronze";
+
+            if (!groupModded && !IsKnownMaterial(mat) && !LooksVanillaShieldPrefab(prefab))
                 return null;
 
-            // Tools that share weapon item types should not sit in weapon material groups.
-            if (LooksToolPrefab(prefab))
-                return null;
-
-            return "Weapon" + mat;
-        }
-
-        private static bool LooksToolPrefab(string prefab)
-        {
-            if (string.IsNullOrEmpty(prefab))
-                return false;
-            return prefab.IndexOf("Pickaxe", System.StringComparison.OrdinalIgnoreCase) >= 0
-                || prefab.IndexOf("Hammer", System.StringComparison.OrdinalIgnoreCase) >= 0
-                || prefab.IndexOf("Hoe", System.StringComparison.OrdinalIgnoreCase) >= 0
-                || prefab.IndexOf("Cultivator", System.StringComparison.OrdinalIgnoreCase) >= 0
-                || prefab.IndexOf("Scythe", System.StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        public static bool IsAmmo(Recipe recipe)
-        {
-            ItemDrop.ItemData.ItemType t = GetItemType(recipe);
-            if (t == ItemDrop.ItemData.ItemType.Ammo || t == ItemDrop.ItemData.ItemType.AmmoNonEquipable)
-                return true;
-
-            string prefab = PrefabName(recipe) ?? "";
-            string shared = SharedName(recipe) ?? "";
-            string blob = prefab + " " + shared;
-            return blob.IndexOf("Arrow", System.StringComparison.OrdinalIgnoreCase) >= 0
-                || blob.IndexOf("Bolt", System.StringComparison.OrdinalIgnoreCase) >= 0;
+            return "Shield" + mat;
         }
 
         public static int PieceOrder(Recipe recipe, string[] orderTokens)
@@ -103,7 +71,6 @@ namespace WorkbenchesPlus
             string shared = SharedName(recipe) ?? "";
             string blob = prefab + " " + shared;
 
-            // Prefer explicit Arrow/Bolt tokens before generic Ammo item-type fallback.
             for (int i = 0; i < orderTokens.Length; i++)
             {
                 string token = orderTokens[i];
@@ -113,19 +80,13 @@ namespace WorkbenchesPlus
                     return i;
             }
 
-            ItemDrop.ItemData.ItemType t = GetItemType(recipe);
-            if (t == ItemDrop.ItemData.ItemType.Ammo || t == ItemDrop.ItemData.ItemType.AmmoNonEquipable)
-            {
-                int arrow = IndexOf(orderTokens, "Arrow");
-                int bolt = IndexOf(orderTokens, "Bolt");
-                return System.Math.Min(arrow, bolt);
-            }
-            if (t == ItemDrop.ItemData.ItemType.Bow)
-                return IndexOf(orderTokens, "Bow");
-            if (t == ItemDrop.ItemData.ItemType.Attach_Atgeir)
-                return IndexOf(orderTokens, "Atgeir");
+            // Default: round shield before tower
+            if (blob.IndexOf("Tower", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return IndexOf(orderTokens, "Tower") < orderTokens.Length
+                    ? IndexOf(orderTokens, "Tower")
+                    : orderTokens.Length + 5;
 
-            return orderTokens.Length + 10;
+            return IndexOf(orderTokens, "Shield");
         }
 
         public static string[] ParseOrder(string csv)
@@ -145,25 +106,22 @@ namespace WorkbenchesPlus
             return list.ToArray();
         }
 
-        private static string[] DefaultOrder()
+        public static bool IsShield(Recipe recipe)
         {
-            // Arrows/bolts first — most used at the forge/workbench weapon list.
-            return new[]
-            {
-                "Arrow", "Bolt", "Knife", "Sword", "Mace", "Axe", "Battleaxe", "Spear", "Atgeir",
-                "Sledge", "Bow", "Crossbow", "Club", "Bomb", "Pickaxe", "Other"
-            };
+            if (recipe == null)
+                return false;
+
+            ItemDrop.ItemData.ItemType t = GetItemType(recipe);
+            if (t == ItemDrop.ItemData.ItemType.Shield)
+                return true;
+
+            string prefab = PrefabName(recipe) ?? "";
+            return prefab.IndexOf("Shield", System.StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        private static bool IsWeaponType(ItemDrop.ItemData.ItemType t)
+        private static string[] DefaultOrder()
         {
-            return t == ItemDrop.ItemData.ItemType.OneHandedWeapon
-                || t == ItemDrop.ItemData.ItemType.TwoHandedWeapon
-                || t == ItemDrop.ItemData.ItemType.TwoHandedWeaponLeft
-                || t == ItemDrop.ItemData.ItemType.Bow
-                || t == ItemDrop.ItemData.ItemType.Attach_Atgeir
-                || t == ItemDrop.ItemData.ItemType.Ammo
-                || t == ItemDrop.ItemData.ItemType.AmmoNonEquipable;
+            return new[] { "Shield", "Tower", "Other" };
         }
 
         private static string FromPrefab(string prefab)
@@ -171,24 +129,19 @@ namespace WorkbenchesPlus
             if (string.IsNullOrEmpty(prefab))
                 return null;
 
-            // SwordIron / AxeBlackMetal / ArrowFire
-            string name = prefab;
-            for (int i = 0; i < WeaponTypeTokens.Length; i++)
+            // ShieldBronze / TowerShieldIron
+            for (int i = 0; i < ShieldTypeTokens.Length; i++)
             {
-                string tok = WeaponTypeTokens[i];
-                if (name.StartsWith(tok, System.StringComparison.OrdinalIgnoreCase)
-                    && name.Length > tok.Length)
-                {
-                    return name.Substring(tok.Length);
-                }
-                if (name.EndsWith(tok, System.StringComparison.OrdinalIgnoreCase)
-                    && name.Length > tok.Length + 2)
-                {
-                    return name.Substring(0, name.Length - tok.Length);
-                }
+                string tok = ShieldTypeTokens[i];
+                if (prefab.StartsWith(tok, System.StringComparison.OrdinalIgnoreCase)
+                    && prefab.Length > tok.Length)
+                    return prefab.Substring(tok.Length);
+                if (prefab.EndsWith(tok, System.StringComparison.OrdinalIgnoreCase)
+                    && prefab.Length > tok.Length + 2)
+                    return prefab.Substring(0, prefab.Length - tok.Length);
             }
 
-            return FromKnownStem(name);
+            return FromKnownStem(prefab);
         }
 
         private static string FromShared(string shared)
@@ -199,8 +152,8 @@ namespace WorkbenchesPlus
             string s = SharedCleanup.Replace(shared, "");
             for (int i = 0; i < 3; i++)
             {
-                string next = SharedWeaponTrim.Replace(s, "");
-                next = SharedWeaponPrefix.Replace(next, "");
+                string next = SharedShieldTrim.Replace(s, "");
+                next = SharedShieldPrefix.Replace(next, "");
                 next = next.Trim('_', '-', ' ');
                 if (next == s)
                     break;
@@ -231,7 +184,6 @@ namespace WorkbenchesPlus
             string s = raw.Replace("-", "_");
             if (s.IndexOf('_') >= 0)
             {
-                // black_metal → BlackMetal
                 string[] parts = s.Split('_');
                 var sb = new System.Text.StringBuilder();
                 for (int i = 0; i < parts.Length; i++)
@@ -249,14 +201,13 @@ namespace WorkbenchesPlus
             if (s.Length > 0 && char.IsLower(s[0]))
                 s = char.ToUpperInvariant(s[0]) + s.Substring(1);
 
-            // Aliases
             if (s.Equals("Blackmetal", System.StringComparison.OrdinalIgnoreCase))
                 return "BlackMetal";
             if (s.Equals("Finewood", System.StringComparison.OrdinalIgnoreCase))
                 return "FineWood";
-            if (s.Equals("Draugrfang", System.StringComparison.OrdinalIgnoreCase)
-                || s.Equals("Fang", System.StringComparison.OrdinalIgnoreCase))
-                return "Fang";
+            if (s.Equals("Serpentscale", System.StringComparison.OrdinalIgnoreCase)
+                || s.Equals("Serpent", System.StringComparison.OrdinalIgnoreCase))
+                return "Serpentscale";
 
             return s;
         }
@@ -268,19 +219,15 @@ namespace WorkbenchesPlus
                 if (mat.Equals(MaterialStems[i], System.StringComparison.OrdinalIgnoreCase))
                     return true;
             }
-            return false;
+            return mat.Equals("Bronze", System.StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool LooksVanillaWeaponPrefab(string prefab)
+        private static bool LooksVanillaShieldPrefab(string prefab)
         {
             if (string.IsNullOrEmpty(prefab))
                 return false;
-            for (int i = 0; i < WeaponTypeTokens.Length; i++)
-            {
-                if (prefab.StartsWith(WeaponTypeTokens[i], System.StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
-            return false;
+            return prefab.StartsWith("Shield", System.StringComparison.OrdinalIgnoreCase)
+                || prefab.StartsWith("TowerShield", System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static string PrefabName(Recipe recipe)
