@@ -1,7 +1,7 @@
 # Workbenches+
 
 **Crafting menus that stay readable.**  
-Sort and filter station recipes so craftable items rise first, categories sit under the repair button, and armor sets and weapon materials stay together in biome order. Does not change recipes or crafting logic.
+Sort and filter station recipes so craftable items rise first, categories sit under the repair button, and armor sets and weapon materials stay together in biome order. Dismantle station-crafted items back into their materials from a tab beside Craft / Upgrade. Does not change recipes or crafting logic.
 
 **Client-side** · Valheim 1.0 · BepInExPack 5.4.2350+. Console players via crossplay cannot load the mod.
 
