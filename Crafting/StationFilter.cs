@@ -6,6 +6,11 @@ namespace WorkbenchesPlus
     /// </summary>
     internal static class StationFilter
     {
+        public static bool IsUpgrader(CraftingStation station)
+        {
+            return station != null && station.m_upgrader;
+        }
+
         public static void Apply(System.Collections.Generic.List<Recipe> recipes)
         {
             if (recipes == null || recipes.Count == 0)
@@ -16,6 +21,11 @@ namespace WorkbenchesPlus
                 return;
 
             CraftingStation current = player.GetCurrentCraftingStation();
+            // Forge of Potential: vanilla GetAvailableRecipes returns every known recipe.
+            // Filtering that list by station name wipes the upgrade tab.
+            if (IsUpgrader(current))
+                return;
+
             for (int i = recipes.Count - 1; i >= 0; i--)
             {
                 if (!BelongsToStation(recipes[i], current))
@@ -33,6 +43,10 @@ namespace WorkbenchesPlus
             // No station nearby: only recipes that need no station.
             if (current == null)
                 return required == null;
+
+            // Forge of Potential accepts every known upgrade recipe (vanilla).
+            if (IsUpgrader(current))
+                return true;
 
             // Recipe needs a station: must be the same type (by m_name).
             if (required != null)

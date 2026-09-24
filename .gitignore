@@ -2,4 +2,9 @@ bin/
 obj/
 *.user
 .vs/
+.cursor/
 thunderstore/packs/
+_stations.json
+_workbench_recipes.json
+_workbench_label_map.txt
+*.zip

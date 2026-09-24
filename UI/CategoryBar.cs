@@ -20,6 +20,7 @@ namespace WorkbenchesPlus
 
         private static GameObject _root;
         private static float _chipWidth = DefaultChipWidth;
+        private static string _builtProfileKey;
         private static readonly List<Button> Buttons = new List<Button>();
         private static readonly List<TMP_Text> Labels = new List<TMP_Text>();
         private static readonly List<Image> Backgrounds = new List<Image>();
@@ -30,6 +31,16 @@ namespace WorkbenchesPlus
         {
             if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value || !Plugin.Settings.EnableCategories.Value)
             {
+                Hide();
+                return;
+            }
+
+            Player player = Player.m_localPlayer;
+            CraftingStation station = player != null ? player.GetCurrentCraftingStation() : null;
+            if (StationFilter.IsUpgrader(station))
+            {
+                if (Active != CraftCategory.All)
+                    SetActive(CraftCategory.All, rebuild: false);
                 Hide();
                 return;
             }
@@ -46,11 +57,16 @@ namespace WorkbenchesPlus
             if (host == null)
                 return;
 
-            if (_root != null && _root.transform.parent != host)
+            string profileKey = StationCategoryProfiles.ProfileKey(station);
+            if (_root != null && (_root.transform.parent != host || _builtProfileKey != profileKey))
+            {
+                if (Active != CraftCategory.All)
+                    SetActive(CraftCategory.All, rebuild: false);
                 DestroyUiOnly();
+            }
 
             if (_root == null)
-                Build(gui, host);
+                Build(gui, host, station);
 
             PlaceUnderRepair(repair);
             ApplyVisibility();
@@ -98,6 +114,7 @@ namespace WorkbenchesPlus
             if (_root != null)
                 Object.Destroy(_root);
             _root = null;
+            _builtProfileKey = null;
             Buttons.Clear();
             Labels.Clear();
             Backgrounds.Clear();
@@ -172,7 +189,7 @@ namespace WorkbenchesPlus
             _root.transform.SetAsFirstSibling();
         }
 
-        private static void Build(InventoryGui gui, RectTransform host)
+        private static void Build(InventoryGui gui, RectTransform host, CraftingStation station)
         {
             Buttons.Clear();
             Labels.Clear();
@@ -181,6 +198,7 @@ namespace WorkbenchesPlus
 
             _root = new GameObject("WBP_Categories", typeof(RectTransform));
             _root.transform.SetParent(host, false);
+            _builtProfileKey = StationCategoryProfiles.ProfileKey(station);
 
             var layout = _root.AddComponent<VerticalLayoutGroup>();
             layout.childAlignment = TextAnchor.UpperCenter;
@@ -197,9 +215,10 @@ namespace WorkbenchesPlus
             if (sample != null)
                 font = sample.font;
 
-            for (int i = 0; i < RecipeCategories.Order.Length; i++)
+            CraftCategory[] order = StationCategoryProfiles.OrderFor(station);
+            for (int i = 0; i < order.Length; i++)
             {
-                CraftCategory cat = RecipeCategories.Order[i];
+                CraftCategory cat = order[i];
                 Cats.Add(cat);
                 GameObject btnGo = MakeChip(RecipeCategories.Label(cat), template, font);
                 btnGo.transform.SetParent(_root.transform, false);

@@ -20,6 +20,7 @@ namespace WorkbenchesPlus
             public string SetKey;
             public string MaterialBucket;
             public int PieceOrder;
+            public float FoodStatValue;
             public string SortName;
         }
 
@@ -34,6 +35,14 @@ namespace WorkbenchesPlus
                 return;
             if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
                 return;
+
+            Player player = Player.m_localPlayer;
+            if (player != null && StationFilter.IsUpgrader(player.GetCurrentCraftingStation()))
+            {
+                if (CategoryBar.Active != CraftCategory.All)
+                    CategoryBar.SetActive(CraftCategory.All, rebuild: false);
+                return;
+            }
 
             // Dismantle already built a station-filtered inventory list — do not strip it again
             // (and keep DismantleMode.Items indices aligned with recipes).
@@ -77,6 +86,12 @@ namespace WorkbenchesPlus
         public static void ReorderGui(InventoryGui gui)
         {
             if (gui == null || Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
+            {
+                MaterialSectionHeaders.Clear();
+                return;
+            }
+            Player player = Player.m_localPlayer;
+            if (player != null && StationFilter.IsUpgrader(player.GetCurrentCraftingStation()))
             {
                 MaterialSectionHeaders.Clear();
                 return;
@@ -278,6 +293,7 @@ namespace WorkbenchesPlus
                     SetKey = setKey,
                     MaterialBucket = MaterialNameBucket.Resolve(r),
                     PieceOrder = pieceOrder,
+                    FoodStatValue = RecipeCategories.FoodStatSortValue(r),
                     SortName = DisplayName(r)
                 });
             }
@@ -408,6 +424,14 @@ namespace WorkbenchesPlus
                     return tierCmp;
             }
 
+            // Food stations: within Health / Stamina / Eitr, highest bar first (100 → 10).
+            if (IsFoodStatBucket(a.MaterialBucket))
+            {
+                int foodCmp = b.FoodStatValue.CompareTo(a.FoodStatValue);
+                if (foodCmp != 0)
+                    return foodCmp;
+            }
+
             int kind = MaterialKind(a.SetKey).CompareTo(MaterialKind(b.SetKey));
             if (kind != 0)
                 return kind;
@@ -417,6 +441,15 @@ namespace WorkbenchesPlus
                 return po;
 
             return string.Compare(a.SortName, b.SortName, System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsFoodStatBucket(string bucket)
+        {
+            if (string.IsNullOrEmpty(bucket))
+                return false;
+            return bucket.Equals("Health", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Stamina", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Eitr", System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static int CompareMaterialThenPiece(Entry a, Entry b)

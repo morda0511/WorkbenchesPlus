@@ -38,8 +38,12 @@ namespace WorkbenchesPlus
 
             bool atStation = Player.m_localPlayer != null
                 && Player.m_localPlayer.GetCurrentCraftingStation() != null;
-            _tab.SetActive(atStation);
-            if (atStation)
+            CraftingStation station = Player.m_localPlayer != null
+                ? Player.m_localPlayer.GetCurrentCraftingStation()
+                : null;
+            bool show = atStation && !StationFilter.IsUpgrader(station);
+            _tab.SetActive(show);
+            if (show)
             {
                 EnsureLabelFit(gui);
                 EnsurePlacement(gui);

@@ -15,7 +15,9 @@ namespace WorkbenchesPlus
             "BlackMetal", "Flametal", "Carapace", "Crystal", "Bronze", "Copper", "Silver",
             "Iron", "Flint", "Chitin", "Bone", "Abyssal", "Needle", "FineWood", "Wood",
             "Ooze", "Bile", "Frost", "Poison", "Fire", "Obsidian", "Ancient", "Draugr",
-            "Huntsman", "Fang", "Blood", "Mist", "Ashlands", "Asksvin", "Himmin"
+            "Huntsman", "Fang", "Gold", "Bloodgold", "Blood", "Mist", "Ashlands", "Asksvin", "Himmin",
+            "Berzerkr", "Jotun", "Skull", "SkollHati", "Eldner", "Demolisher", "Splitnir",
+            "Krom", "Niedhogg", "Slayer"
         };
 
         private static readonly string[] WeaponTypeTokens =
@@ -39,6 +41,8 @@ namespace WorkbenchesPlus
         public static string SetKey(Recipe recipe, bool groupModded)
         {
             if (recipe == null)
+                return null;
+            if (RecipeCategories.IsBait(recipe))
                 return null;
 
             ItemDrop.ItemData.ItemType t = GetItemType(recipe);
@@ -86,15 +90,12 @@ namespace WorkbenchesPlus
 
         public static bool IsAmmo(Recipe recipe)
         {
-            ItemDrop.ItemData.ItemType t = GetItemType(recipe);
-            if (t == ItemDrop.ItemData.ItemType.Ammo || t == ItemDrop.ItemData.ItemType.AmmoNonEquipable)
-                return true;
+            if (recipe == null || RecipeCategories.IsBait(recipe))
+                return false;
 
             string prefab = PrefabName(recipe) ?? "";
             string shared = SharedName(recipe) ?? "";
-            string blob = prefab + " " + shared;
-            return blob.IndexOf("Arrow", System.StringComparison.OrdinalIgnoreCase) >= 0
-                || blob.IndexOf("Bolt", System.StringComparison.OrdinalIgnoreCase) >= 0;
+            return RecipeCategories.IsArrowOrBolt(prefab, shared);
         }
 
         public static int PieceOrder(Recipe recipe, string[] orderTokens)

@@ -133,6 +133,9 @@ namespace WorkbenchesPlus
             recipe = FindRecipe(item, station);
             if (recipe == null || recipe.m_item == null)
                 return false;
+            // Forge of Potential is upgrade-only; do not treat every item as dismantleable.
+            if (StationFilter.IsUpgrader(station))
+                return false;
             if (!StationFilter.BelongsToStation(recipe, station))
                 return false;
 

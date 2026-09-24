@@ -1,0 +1,81 @@
+[size=5][b]Workbenches+[/b][/size]
+
+[b]Crafting menus that stay readable.[/b]
+Sort and filter station recipes so craftable items rise first, categories sit under the repair button, and armor sets and weapon materials stay together in biome order. Dismantle station-crafted items back into their materials from a tab beside Craft / Upgrade. Does not change recipes or crafting logic.
+
+[b]Client-side[/b] · Valheim 1.0 · BepInExPack 5.4.2350+. Console players via crossplay cannot load the mod.
+
+[b]Bug reports:[/b] [url=https://github.com/morda0511/WorkbenchesPlus/issues]https://github.com/morda0511/WorkbenchesPlus/issues[/url]
+
+[b]Discord:[/b] [url=https://discord.gg/aVKVVmyzj]https://discord.gg/aVKVVmyzj[/url]
+
+[size=4][b]Features[/b][/size]
+
+[b]Craftable first[/b]
+[list]
+[*]Recipes you can craft now sit at the top.
+[*]Partial materials next, then the rest.
+[*]Uncraftable set pieces stay below craftable ones.
+[/list]
+
+[b]Category chips[/b]
+[list]
+[*]Chips under the repair button: All, Weapons, Armor, Shields, Tools, Building, Furniture, Food, Potions, Materials, Misc.
+[*][b]All[/b] shows recipes for the current station only.
+[/list]
+
+[b]Armor set grouping[/b]
+[list]
+[*]Helmet, chest, legs, and cape from the same set stay together.
+[*]Piece order is configurable.
+[/list]
+
+[b]Weapon material grouping[/b]
+[list]
+[*]Weapons of the same material stay together (Iron with Iron, Black Metal with Black Metal).
+[*]Groups follow biome / material tier order (Copper, Bronze, Iron, …).
+[/list]
+
+[b]Sort modes[/b]
+[list]
+[*]CraftableFirst, CategoryThenCraftable, Progression, Alphabetical, Vanilla.
+[/list]
+
+[b]Craft multiplier[/b]
+[list]
+[*]Up / down arrows beside the Craft button set how many crafts to run.
+[*]Caps at MaxCraftMultiplier (default 99).
+[/list]
+
+[size=4][b]Config[/b][/size]
+
+One file only (no YAML):
+
+[code]BepInEx/config/com.morda.workbenchesplus.cfg[/code]
+
+[list]
+[*][b]EnableMod[/b]: Master switch
+[*][b]EnableCategories[/b]: Category chips
+[*][b]EnableCraftableFirst[/b]: Prioritize craftable recipes
+[*][b]EnableArmorSetGrouping[/b]: Keep armor sets together
+[*][b]EnableWeaponSetGrouping[/b]: Keep weapons by material together
+[*][b]SortMode[/b]: CraftableFirst / CategoryThenCraftable / Progression / Alphabetical / Vanilla
+[*][b]ArmorPieceOrder[/b]: Order inside an armor set
+[*][b]WeaponPieceOrder[/b]: Order inside a weapon material group
+[*][b]GroupModdedArmorSets[/b]: Heuristics for modded armor
+[*][b]GroupModdedWeaponSets[/b]: Heuristics for modded weapons
+[*][b]RefreshOnInventoryChange[/b]: Re-sort when inventory changes
+[*][b]RefreshOnStationChange[/b]: Reset category to All when switching stations
+[*][b]ShowCraftabilityIndicators[/b]: Green check on fully craftable rows
+[*][b]EnableCraftMultiplier[/b]: Multi-craft arrows beside Craft
+[*][b]MaxCraftMultiplier[/b]: Max multi-craft amount
+[*][b]DebugLogging[/b]: Extra logs
+[/list]
+
+[size=4][b]Install[/b][/size]
+
+[list=1]
+[*]Install [url=https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/]BepInExPack Valheim[/url].
+[*]Drop WorkbenchesPlus.dll into BepInEx/plugins/WorkbenchesPlus/ (or install via your mod manager).
+[*]Launch once to generate the config file.
+[/list]

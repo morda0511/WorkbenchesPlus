@@ -25,6 +25,7 @@ namespace WorkbenchesPlus
         public ConfigEntry<bool> EnableCraftMultiplier { get; }
         public ConfigEntry<int> MaxCraftMultiplier { get; }
         public ConfigEntry<bool> EnableDismantle { get; }
+        public ConfigEntry<bool> EnableBuildRangeCycle { get; }
         public ConfigEntry<bool> DebugLogging { get; }
 
         public ModConfig(ConfigFile file)
@@ -74,6 +75,8 @@ namespace WorkbenchesPlus
                 "Upper cap for the craft multiplier (materials still limit how high you can go).");
             EnableDismantle = file.Bind("5 - UI", "EnableDismantle", true,
                 "Show a Dismantle tab beside Craft/Upgrade to break items back into crafting materials.");
+            EnableBuildRangeCycle = file.Bind("6 - Build range", "EnableBuildRangeCycle", true,
+                "Look at a station with a build radius and press Shift+E (AltPlace + Use) to add 50 m, up to +200 m, then back to default. Saved on the station.");
             DebugLogging = file.Bind("9 - Debug", "DebugLogging", false,
                 "Extra log lines for sorting decisions (set keys, order).");
         }

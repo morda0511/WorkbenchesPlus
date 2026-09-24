@@ -22,13 +22,15 @@ namespace WorkbenchesPlus
             // Plains
             "BlackMetal", "Padded", "Needle", "Fang", "Porcupine",
             // Mistlands
-            "Carapace", "Eitr", "Mage", "Himmin", "Mist", "Dvergr", "Vilebone",
-            // Ashlands
+            "Carapace", "Eitr", "Mage", "Himmin", "Mist", "Dvergr", "Vilebone", "Gold", "Bloodgold",
+            // Ashlands named
             "Flametal", "Ashlands", "Asksvin", "Embla", "Blood", "Bile", "Ooze",
+            "Berzerkr", "Jotun", "Skull", "SkollHati", "Eldner", "Demolisher", "Splitnir",
+            "Krom", "Niedhogg", "Slayer",
             // Elemental / misc ammo & specials (late-ish within their biome, after metals)
             "Fire", "Poison",
             // Workbench utility groups
-            "Bomb", "Firework", "Potion", "Skol", "Cape", "Clothes", "Furniture", "Misc", "Special"
+            "Bomb", "Firework", "Potion", "Bait", "Health", "Stamina", "Eitr", "Cast", "Prep", "Fish", "Feasts", "Trinkets", "Skol", "Cape", "Clothes", "Furniture", "Materials", "Misc", "Special"
         };
 
         private static readonly Dictionary<string, int> IndexByMaterial =

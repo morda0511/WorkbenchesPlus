@@ -10,8 +10,8 @@
     <AssemblyName>WorkbenchesPlus</AssemblyName>
     <RootNamespace>WorkbenchesPlus</RootNamespace>
     <Product>Workbenches+</Product>
-    <Version>1.0.2</Version>
-    <ModVersion>1.0.2</ModVersion>
+    <Version>1.0.12</Version>
+    <ModVersion>1.0.12</ModVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <DebugType>portable</DebugType>
   </PropertyGroup>
@@ -39,6 +39,10 @@
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(ManagedDir)\UnityEngine.PhysicsModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
@@ -70,7 +74,7 @@
     <MakeDir Directories="$(ThunderstorePackRoot)\plugins\WorkbenchesPlus" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ThunderstorePackRoot)\plugins\WorkbenchesPlus" OverwriteReadOnlyFiles="true" />
   </Target>
-  <Target Name="PackThunderstore" AfterTargets="Deploy" Condition="'$(Configuration)' == 'Release'">
+  <Target Name="PackThunderstore" AfterTargets="Deploy" Condition="'$(Configuration)' == 'Release' AND '$(Pack)' == 'true'">
     <MakeDir Directories="$(DesktopModPackDir)" />
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)pack-thunderstore.ps1&quot; -Version &quot;$(ModVersion)&quot; -PackRoot &quot;$(MSBuildThisFileDirectory)thunderstore\WorkbenchesPlus&quot; -OutputDir &quot;$(DesktopModPackDir)&quot; -PackageName &quot;WorkbenchesPlus&quot;" />
   </Target>

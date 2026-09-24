@@ -17,8 +17,8 @@ namespace WorkbenchesPlus
             "Bronze", "Copper", "Silver", "Iron", "Flint", "Bone", "Leather", "Padded",
             "Antler", "Wood", "Root", "Ancient", "Abyssal", "Chitin", "Wolf", "Frost",
             "Crystal", "Obsidian", "Needle", "Eitr", "Mage",
-            "Himmin", "Mist", "Dvergr", "Ashlands", "Asksvin", "Embla", "Blood", "Bile",
-            "Ooze", "Fire", "Poison", "Banded", "Rags", "Rag", "Berserker", "Lox"
+            "Himmin", "Mist", "Dvergr", "Ashlands", "Asksvin", "Embla", "Gold", "Bloodgold", "Blood", "Bile",
+            "Ooze", "Fire", "Poison", "Banded", "Rags", "Rag", "Berserker", "Berzerkr", "Lox"
         };
 
         /// <summary>
@@ -31,11 +31,73 @@ namespace WorkbenchesPlus
                 { "HelmetDrake", "Wolf" },
                 { "TrinketSilverDamage", "Wolf" }, // Wolf Sight
 
-                // Bows
+                // Bows (vanilla early)
                 { "Bow", "Bows" },
                 { "BowFineWood", "Bows" },
                 { "BowHuntsman", "Bows" },
                 { "BowDraugrFang", "Bows" },
+                { "BowAshlands", "Bows" },
+                { "BowAshlands_Blood", "Bows" },
+                { "BowAshlands_Lightning", "Bows" },
+                { "BowAshlands_Nature", "Bows" },
+                { "BowSpineSnap", "Bows" },
+                { "BowGold", "Bows" },
+                { "BowGold_BloodLightning", "Bows" },
+                { "BowGold_FrostFire", "Bows" },
+
+                // Crossbows
+                { "CrossbowArbalest", "Crossbows" },
+                { "CrossbowRipper", "Crossbows" },
+                { "CrossbowRipper_Blood", "Crossbows" },
+                { "CrossbowRipper_Lightning", "Crossbows" },
+                { "CrossbowRipper_Nature", "Crossbows" },
+                { "CrossbowGold", "Crossbows" },
+                { "CrossbowGold_BloodLightning", "Crossbows" },
+                { "CrossbowGold_FrostFire", "Crossbows" },
+
+                // Named Black Forge weapons
+                { "AxeBerzerkr", "Berzerkr" },
+                { "AxeBerzerkr_Blood", "Berzerkr" },
+                { "AxeBerzerkr_Lightning", "Berzerkr" },
+                { "AxeBerzerkr_Nature", "Berzerkr" },
+                { "AxeJotunBane", "Jotun" },
+                { "Battleaxe_SkullSplittur", "Skull" },
+                { "KnifeSkollAndHati", "SkollHati" },
+                { "MaceEldner", "Eldner" },
+                { "MaceEldner_Blood", "Eldner" },
+                { "MaceEldner_Lightning", "Eldner" },
+                { "MaceEldner_Nature", "Eldner" },
+                { "SledgeDemolisher", "Demolisher" },
+                { "SpearSplitner", "Splitnir" },
+                { "SpearSplitner_Blood", "Splitnir" },
+                { "SpearSplitner_Lightning", "Splitnir" },
+                { "SpearSplitner_Nature", "Splitnir" },
+                { "SwordKrom", "Krom" },
+                { "SwordNiedhogg", "Niedhogg" },
+                { "SwordNiedhogg_Blood", "Niedhogg" },
+                { "SwordNiedhogg_Lightning", "Niedhogg" },
+                { "SwordNiedhogg_Nature", "Niedhogg" },
+                { "SwordSlayer", "Slayer" },
+                { "SwordSlayer_Blood", "Slayer" },
+                { "SwordSlayer_Lightning", "Slayer" },
+                { "SwordSlayer_Nature", "Slayer" },
+                { "SwordMistwalker", "Mist" },
+                { "SwordFire", "Fire" },
+                { "AtgeirHimminAfl", "Himmin" },
+
+                // Capes / utility (Black Forge)
+                { "CapeAsh", "Cape" },
+                { "CapeDeepNorth", "Cape" },
+                { "CapeAsksvin", "Cape" },
+                { "CapeDeepNorthMage", "Cape" },
+                { "CapeFeather", "Cape" },
+                { "HelmetCrownOfValheim", "Special" },
+                { "Bell", "Materials" },
+                { "GrapplingHook", "Tools" },
+                { "Lantern", "Tools" },
+                { "SnowShovel", "Tools" },
+                { "SaddleAsksvin", "Tools" },
+                { "SaddleMoose", "Tools" },
 
                 // Iron (plain iron battleaxe only — not Wood / Black Metal / Crystal)
                 { "Battleaxe", "Iron" },
@@ -177,6 +239,43 @@ namespace WorkbenchesPlus
             if (recipe == null)
                 return null;
 
+            if (RecipeCategories.IsBait(recipe))
+                return "Bait";
+
+            CraftCategory cat = RecipeCategories.Classify(recipe);
+            if (cat == CraftCategory.Health)
+                return "Health";
+            if (cat == CraftCategory.Stamina)
+                return "Stamina";
+            if (cat == CraftCategory.Eitr)
+                return "Eitr";
+            if (cat == CraftCategory.Cast)
+                return "Cast";
+            if (cat == CraftCategory.Prep)
+                return "Prep";
+            if (cat == CraftCategory.Fish)
+                return "Fish";
+            if (cat == CraftCategory.Food)
+                return null;
+            if (cat == CraftCategory.Feasts)
+                return "Feasts";
+            if (cat == CraftCategory.Bait)
+                return "Bait";
+            if (cat == CraftCategory.Potions)
+                return "Potion";
+            if (cat == CraftCategory.Magic)
+                return "Staffs";
+            if (cat == CraftCategory.Trinkets)
+                return "Trinkets";
+            if (cat == CraftCategory.Clothes)
+                return "Clothes";
+            if (cat == CraftCategory.Materials)
+                return "Materials";
+            if (cat == CraftCategory.Tools)
+                return "Tools";
+            if (cat == CraftCategory.Ammo)
+                return WeaponSetDetector.IsAmmo(recipe) ? "Arrows" : "Ammo";
+
             if (WeaponSetDetector.IsAmmo(recipe))
                 return "Arrows";
 
@@ -186,6 +285,25 @@ namespace WorkbenchesPlus
             string exact;
             if (!string.IsNullOrEmpty(prefab) && PrefabOverrides.TryGetValue(prefab, out exact))
                 return exact;
+
+            // Capes before Ashlands/token scan
+            if (prefab.StartsWith("Cape", System.StringComparison.OrdinalIgnoreCase))
+                return "Cape";
+
+            // Bows / Crossbows before material tokens (Ashlands/Gold would steal them).
+            if (prefab.StartsWith("Crossbow", System.StringComparison.OrdinalIgnoreCase))
+                return "Crossbows";
+            if (prefab.StartsWith("Bow", System.StringComparison.OrdinalIgnoreCase))
+                return "Bows";
+
+            // Named Black Forge uniques before Blood/Frost/Fire token noise.
+            string named = NamedWeaponBucket(prefab);
+            if (!string.IsNullOrEmpty(named))
+                return named;
+
+            // Finished Deep North bloodgold gear (Uncooked already Cast via Classify).
+            if (ContainsAny(prefab, "Gold"))
+                return "Bloodgold";
 
             // Prefix / family heuristics (before token scan so Fireworks ≠ Fire, BombOoze ≠ Ooze)
             string family = FromPrefabFamily(prefab);
@@ -243,10 +361,47 @@ namespace WorkbenchesPlus
             return null;
         }
 
+        private static string NamedWeaponBucket(string prefab)
+        {
+            if (string.IsNullOrEmpty(prefab))
+                return null;
+            if (ContainsAny(prefab, "Berzerkr", "Berserker") && !ContainsAny(prefab, "Undead"))
+                return "Berzerkr";
+            if (ContainsAny(prefab, "JotunBane", "Jotun"))
+                return "Jotun";
+            if (ContainsAny(prefab, "SkullSplittur", "SkullSplit"))
+                return "Skull";
+            if (ContainsAny(prefab, "SkollAndHati", "Skoll"))
+                return "SkollHati";
+            if (ContainsAny(prefab, "Eldner"))
+                return "Eldner";
+            if (ContainsAny(prefab, "Demolisher"))
+                return "Demolisher";
+            if (ContainsAny(prefab, "Splitner", "Splitnir"))
+                return "Splitnir";
+            if (ContainsAny(prefab, "SwordKrom") || prefab.Equals("SwordKrom", System.StringComparison.OrdinalIgnoreCase))
+                return "Krom";
+            if (ContainsAny(prefab, "Niedhogg"))
+                return "Niedhogg";
+            if (ContainsAny(prefab, "SwordSlayer") || (prefab.StartsWith("SwordSlayer", System.StringComparison.OrdinalIgnoreCase)))
+                return "Slayer";
+            if (ContainsAny(prefab, "Mistwalker"))
+                return "Mist";
+            if (prefab.Equals("SwordFire", System.StringComparison.OrdinalIgnoreCase))
+                return "Fire";
+            if (ContainsAny(prefab, "HimminAfl", "Himmin"))
+                return "Himmin";
+            return null;
+        }
+
         private static string FromPrefabFamily(string prefab)
         {
             if (string.IsNullOrEmpty(prefab))
                 return null;
+
+            if (prefab.StartsWith("FishingBait", System.StringComparison.OrdinalIgnoreCase)
+                || ContainsAny(prefab, "Bait"))
+                return "Bait";
 
             if (prefab.StartsWith("Shield", System.StringComparison.OrdinalIgnoreCase))
                 return "Shields";
@@ -445,6 +600,8 @@ namespace WorkbenchesPlus
                 return 3;
             if (bucket.Equals("Cape", System.StringComparison.OrdinalIgnoreCase))
                 return 4;
+            if (bucket.Equals("Trinkets", System.StringComparison.OrdinalIgnoreCase))
+                return 4;
             if (bucket.Equals("Bomb", System.StringComparison.OrdinalIgnoreCase))
                 return 5;
             if (bucket.Equals("Firework", System.StringComparison.OrdinalIgnoreCase))
@@ -454,6 +611,15 @@ namespace WorkbenchesPlus
             if (bucket.Equals("Mist", System.StringComparison.OrdinalIgnoreCase))
                 return 8;
             if (bucket.Equals("Potion", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Bait", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Feasts", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Health", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Stamina", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Eitr", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Cast", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Prep", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Fish", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Materials", System.StringComparison.OrdinalIgnoreCase)
                 || bucket.Equals("Furniture", System.StringComparison.OrdinalIgnoreCase)
                 || bucket.Equals("Misc", System.StringComparison.OrdinalIgnoreCase))
                 return 9;
@@ -489,18 +655,57 @@ namespace WorkbenchesPlus
                 return 0;
             if (bucket.Equals("Bows", System.StringComparison.OrdinalIgnoreCase))
                 return 1;
-            if (bucket.Equals("Stone", System.StringComparison.OrdinalIgnoreCase))
+            if (bucket.Equals("Crossbows", System.StringComparison.OrdinalIgnoreCase))
                 return 2;
-            if (bucket.Equals("Wood", System.StringComparison.OrdinalIgnoreCase))
+            if (bucket.Equals("Stone", System.StringComparison.OrdinalIgnoreCase))
                 return 3;
-            if (bucket.Equals("Flint", System.StringComparison.OrdinalIgnoreCase))
+            if (bucket.Equals("Wood", System.StringComparison.OrdinalIgnoreCase))
                 return 4;
-            if (bucket.Equals("Chitin", System.StringComparison.OrdinalIgnoreCase))
+            if (bucket.Equals("Flint", System.StringComparison.OrdinalIgnoreCase))
                 return 5;
-            if (bucket.Equals("Special", System.StringComparison.OrdinalIgnoreCase))
+            if (bucket.Equals("Chitin", System.StringComparison.OrdinalIgnoreCase))
                 return 6;
-            if (bucket.Equals("Bear", System.StringComparison.OrdinalIgnoreCase))
+            if (bucket.Equals("Carapace", System.StringComparison.OrdinalIgnoreCase))
                 return 7;
+            if (bucket.Equals("Flametal", System.StringComparison.OrdinalIgnoreCase))
+                return 8;
+            if (bucket.Equals("Ashlands", System.StringComparison.OrdinalIgnoreCase))
+                return 9;
+            if (bucket.Equals("Gold", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Bloodgold", System.StringComparison.OrdinalIgnoreCase))
+                return 10;
+            if (bucket.Equals("Berzerkr", System.StringComparison.OrdinalIgnoreCase))
+                return 20;
+            if (bucket.Equals("Jotun", System.StringComparison.OrdinalIgnoreCase))
+                return 21;
+            if (bucket.Equals("Skull", System.StringComparison.OrdinalIgnoreCase))
+                return 22;
+            if (bucket.Equals("SkollHati", System.StringComparison.OrdinalIgnoreCase))
+                return 23;
+            if (bucket.Equals("Eldner", System.StringComparison.OrdinalIgnoreCase))
+                return 24;
+            if (bucket.Equals("Demolisher", System.StringComparison.OrdinalIgnoreCase))
+                return 25;
+            if (bucket.Equals("Splitnir", System.StringComparison.OrdinalIgnoreCase))
+                return 26;
+            if (bucket.Equals("Krom", System.StringComparison.OrdinalIgnoreCase))
+                return 27;
+            if (bucket.Equals("Niedhogg", System.StringComparison.OrdinalIgnoreCase))
+                return 28;
+            if (bucket.Equals("Slayer", System.StringComparison.OrdinalIgnoreCase))
+                return 29;
+            if (bucket.Equals("Himmin", System.StringComparison.OrdinalIgnoreCase))
+                return 30;
+            if (bucket.Equals("Mist", System.StringComparison.OrdinalIgnoreCase))
+                return 31;
+            if (bucket.Equals("Fire", System.StringComparison.OrdinalIgnoreCase))
+                return 32;
+            if (bucket.Equals("Special", System.StringComparison.OrdinalIgnoreCase))
+                return 40;
+            if (bucket.Equals("Materials", System.StringComparison.OrdinalIgnoreCase))
+                return 50;
+            if (bucket.Equals("Bear", System.StringComparison.OrdinalIgnoreCase))
+                return 41;
             if (bucket.Equals("Staffs", System.StringComparison.OrdinalIgnoreCase))
                 return 80;
 
@@ -546,12 +751,28 @@ namespace WorkbenchesPlus
                 return 0;
             if (bucket.Equals("Mist", System.StringComparison.OrdinalIgnoreCase))
                 return 0;
-            if (bucket.Equals("Potion", System.StringComparison.OrdinalIgnoreCase))
+            if (bucket.Equals("Feasts", System.StringComparison.OrdinalIgnoreCase))
                 return 0;
-            if (bucket.Equals("Furniture", System.StringComparison.OrdinalIgnoreCase))
+            if (bucket.Equals("Prep", System.StringComparison.OrdinalIgnoreCase))
                 return 1;
-            if (bucket.Equals("Misc", System.StringComparison.OrdinalIgnoreCase))
+            if (bucket.Equals("Fish", System.StringComparison.OrdinalIgnoreCase))
                 return 2;
+            if (bucket.Equals("Bait", System.StringComparison.OrdinalIgnoreCase))
+                return 3;
+            if (bucket.Equals("Health", System.StringComparison.OrdinalIgnoreCase))
+                return 0;
+            if (bucket.Equals("Stamina", System.StringComparison.OrdinalIgnoreCase))
+                return 1;
+            if (bucket.Equals("Eitr", System.StringComparison.OrdinalIgnoreCase))
+                return 2;
+            if (bucket.Equals("Cast", System.StringComparison.OrdinalIgnoreCase))
+                return 6;
+            if (bucket.Equals("Potion", System.StringComparison.OrdinalIgnoreCase))
+                return 7;
+            if (bucket.Equals("Furniture", System.StringComparison.OrdinalIgnoreCase))
+                return 8;
+            if (bucket.Equals("Misc", System.StringComparison.OrdinalIgnoreCase))
+                return 9;
 
             // Other weapon/armor materials (Bronze, Iron, …) — biome progression
             return 100 + MaterialProgression.Tier("Weapon" + bucket);
@@ -561,15 +782,61 @@ namespace WorkbenchesPlus
         {
             if (string.IsNullOrEmpty(bucket))
                 return null;
-            if (bucket.Equals("Arrows", System.StringComparison.OrdinalIgnoreCase)
-                || bucket.Equals("Ammo", System.StringComparison.OrdinalIgnoreCase))
+            if (bucket.Equals("Arrows", System.StringComparison.OrdinalIgnoreCase))
                 return "Arrows";
+            if (bucket.Equals("Ammo", System.StringComparison.OrdinalIgnoreCase))
+                return "Ammo";
+            if (bucket.Equals("Bait", System.StringComparison.OrdinalIgnoreCase))
+                return "Bait";
+            if (bucket.Equals("Health", System.StringComparison.OrdinalIgnoreCase))
+                return "Health";
+            if (bucket.Equals("Stamina", System.StringComparison.OrdinalIgnoreCase))
+                return "Stamina";
+            if (bucket.Equals("Eitr", System.StringComparison.OrdinalIgnoreCase))
+                return "Eitr";
+            if (bucket.Equals("Cast", System.StringComparison.OrdinalIgnoreCase))
+                return "Cast";
+            if (bucket.Equals("Prep", System.StringComparison.OrdinalIgnoreCase))
+                return "Prep";
+            if (bucket.Equals("Fish", System.StringComparison.OrdinalIgnoreCase))
+                return "Fish";
+            if (bucket.Equals("Trinkets", System.StringComparison.OrdinalIgnoreCase))
+                return "Trinkets";
             if (bucket.Equals("Tools", System.StringComparison.OrdinalIgnoreCase))
                 return "Tools";
             if (bucket.Equals("Bows", System.StringComparison.OrdinalIgnoreCase))
                 return "Bows";
+            if (bucket.Equals("Crossbows", System.StringComparison.OrdinalIgnoreCase))
+                return "Crossbows";
             if (bucket.Equals("Staffs", System.StringComparison.OrdinalIgnoreCase))
                 return "Staffs";
+            if (bucket.Equals("Feasts", System.StringComparison.OrdinalIgnoreCase))
+                return "Feasts";
+            if (bucket.Equals("Gold", System.StringComparison.OrdinalIgnoreCase)
+                || bucket.Equals("Bloodgold", System.StringComparison.OrdinalIgnoreCase))
+                return "Bloodgold";
+            if (bucket.Equals("Berzerkr", System.StringComparison.OrdinalIgnoreCase))
+                return "Berzerkr";
+            if (bucket.Equals("Materials", System.StringComparison.OrdinalIgnoreCase))
+                return "Materials";
+            if (bucket.Equals("Jotun", System.StringComparison.OrdinalIgnoreCase))
+                return "Jotun";
+            if (bucket.Equals("Skull", System.StringComparison.OrdinalIgnoreCase))
+                return "Skull";
+            if (bucket.Equals("SkollHati", System.StringComparison.OrdinalIgnoreCase))
+                return "SkollHati";
+            if (bucket.Equals("Eldner", System.StringComparison.OrdinalIgnoreCase))
+                return "Eldner";
+            if (bucket.Equals("Demolisher", System.StringComparison.OrdinalIgnoreCase))
+                return "Demolisher";
+            if (bucket.Equals("Splitnir", System.StringComparison.OrdinalIgnoreCase))
+                return "Splitnir";
+            if (bucket.Equals("Krom", System.StringComparison.OrdinalIgnoreCase))
+                return "Krom";
+            if (bucket.Equals("Niedhogg", System.StringComparison.OrdinalIgnoreCase))
+                return "Niedhogg";
+            if (bucket.Equals("Slayer", System.StringComparison.OrdinalIgnoreCase))
+                return "Slayer";
             if (bucket.Equals("Shields", System.StringComparison.OrdinalIgnoreCase))
                 return "Shields";
             if (bucket.Equals("Vilebone", System.StringComparison.OrdinalIgnoreCase))

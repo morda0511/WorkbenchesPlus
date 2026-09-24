@@ -36,10 +36,13 @@ namespace WorkbenchesPlus
             if (inv == null)
                 return BucketNone;
 
+            CraftingStation station = player.GetCurrentCraftingStation();
             for (int i = 0; i < res.Length; i++)
             {
                 Piece.Requirement r = res[i];
                 if (r == null || r.m_resItem == null || r.m_resItem.m_itemData == null)
+                    continue;
+                if (!CountsTowardCraft(station, r))
                     continue;
                 int amount = r.GetAmount(1);
                 if (amount <= 0)
@@ -74,10 +77,13 @@ namespace WorkbenchesPlus
             int need = 0;
             int have = 0;
             Piece.Requirement[] res = recipe.m_resources;
+            CraftingStation station = player.GetCurrentCraftingStation();
             for (int i = 0; i < res.Length; i++)
             {
                 Piece.Requirement r = res[i];
                 if (r?.m_resItem?.m_itemData?.m_shared == null)
+                    continue;
+                if (!CountsTowardCraft(station, r))
                     continue;
                 int amount = r.GetAmount(1);
                 if (amount <= 0)
@@ -89,6 +95,20 @@ namespace WorkbenchesPlus
             if (need <= 0)
                 return 0;
             return (have * 100) / need;
+        }
+
+        /// <summary>
+        /// Same skip as vanilla HaveRequirementItems: Potential forge only spends idols.
+        /// </summary>
+        private static bool CountsTowardCraft(CraftingStation station, Piece.Requirement req)
+        {
+            if (req == null)
+                return false;
+            if (station != null && station.m_upgrader != req.m_upgraderResource)
+                return false;
+            if (station == null && req.m_upgraderResource)
+                return false;
+            return true;
         }
     }
 }
