@@ -69,7 +69,7 @@ namespace WorkbenchesPlus
 
         /// <summary>
         /// When a recipe classifies outside this station's chip set, hide it from Available
-        /// by mapping to Misc only if Misc exists — never invent foreign chips (Prep on Galdr).
+        /// by mapping to Misc only if Misc exists - never invent foreign chips (Prep on Galdr).
         /// </summary>
         public static CraftCategory Classify(Recipe recipe)
         {
@@ -239,13 +239,13 @@ namespace WorkbenchesPlus
         private static bool IsFeast(string prefab, string sharedName)
         {
             string s = (prefab ?? "") + " " + (sharedName ?? "");
-            // Serving tray tool is Feaster — not a feast meal.
+            // Serving tray tool is Feaster - not a feast meal.
             if ((prefab ?? "").Equals("Feaster", System.StringComparison.OrdinalIgnoreCase))
                 return false;
             return s.IndexOf("Feast", System.StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        /// <summary>Deep North moulds (Gussformen) — English chip label "Cast".</summary>
+        /// <summary>Deep North moulds (Gussformen) - English chip label "Cast".</summary>
         private static bool IsCastMold(string prefab, string sharedName)
         {
             string p = prefab ?? "";
@@ -257,7 +257,7 @@ namespace WorkbenchesPlus
         }
 
         /// <summary>
-        /// Deep North cast blanks (*Uncooked gear) — not food prep.
+        /// Deep North cast blanks (*Uncooked gear) - not food prep.
         /// </summary>
         private static bool IsCastBlank(string prefab, string sharedName)
         {
@@ -283,7 +283,7 @@ namespace WorkbenchesPlus
             if (s.IndexOf("Uncook", System.StringComparison.OrdinalIgnoreCase) < 0)
                 return false;
 
-            // Explicit food prep — never Deep North Gold / gear blanks.
+            // Explicit food prep - never Deep North Gold / gear blanks.
             return ContainsAny(s,
                 "Pie", "Chicken", "Mushroom", "MeatPlatter", "Misthare", "Pancake",
                 "Cupcake", "FishAndBread", "Sweetbread", "HoneyGlazed", "RoastedCrust",

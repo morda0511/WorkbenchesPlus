@@ -3,7 +3,7 @@
 File: `BepInEx/config/com.morda.workbenchesplus.cfg`  
 Loaded in `Plugin.Awake` via `new ModConfig(Config)` then `Config.Save()`.
 
-No `SettingChanged` handler, no custom reload, no server sync. Values are read from `ConfigEntry.Value` at use time (typical BepInEx behaviour: Configuration Manager / file edit updates the entry). **File-watch reload without BepInEx: UNKNOWN – VERIFY.**
+No `SettingChanged` handler, no custom reload, no server sync. Values are read from `ConfigEntry.Value` at use time (typical BepInEx behaviour: Configuration Manager / file edit updates the entry). **File-watch reload without BepInEx: UNKNOWN - VERIFY.**
 
 No `AcceptableValueRange` / slider attributes on any bind. `MaxCraftMultiplier` is an unbound `int` (code clamps `< 1` to 1 when used).
 

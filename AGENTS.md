@@ -1,4 +1,4 @@
-# Workbenches+ — agent rules
+# Workbenches+ - agent rules
 
 Workbenches+ is a **working client-side crafting-UI mod**. Stability beats new architecture.
 
@@ -17,7 +17,7 @@ Before any edit:
 1. Find the relevant `.cs` files and methods.
 2. Read the existing implementation (callers too).
 3. Trace config → method → visible effect.
-4. Check vanilla Valheim (`InventoryGui`, `Player`, `Recipe`, `CraftingStation`) by decompile or existing usage — do not guess.
+4. Check vanilla Valheim (`InventoryGui`, `Player`, `Recipe`, `CraftingStation`) by decompile or existing usage - do not guess.
 5. Check git history when `.git` exists (`git log`, `git log -p -- path`).
 
 ---
@@ -83,7 +83,7 @@ If a Valheim / Unity / Harmony API is unclear:
 2. Decompile `assembly_valheim.dll` if needed.
 3. Check git history.
 
-If still unclear: write `UNKNOWN – VERIFY`. Do not invent field defaults, prefab colliders, or network behaviour.
+If still unclear: write `UNKNOWN - VERIFY`. Do not invent field defaults, prefab colliders, or network behaviour.
 
 ---
 
@@ -91,12 +91,12 @@ If still unclear: write `UNKNOWN – VERIFY`. Do not invent field defaults, pref
 
 These methods affect several systems:
 
-- `StationFilter.Apply` / `BelongsToStation` — recipe list **and** dismantle eligibility
-- `RecipeSort.Apply` / `ReorderGui` — list contents + on-screen order
-- `AccessToolsExt.RebuildCraftingPanel` — nested rebuild / freeze risk
-- `DismantleMode.Active` — Harmony prefixes skip vanilla craft
-- `Craftability.ScoreBucket` — sort buckets, headers, optional checkmarks
-- `CategoryBar.Active` — filters `RecipeSort.Apply`
+- `StationFilter.Apply` / `BelongsToStation` - recipe list **and** dismantle eligibility
+- `RecipeSort.Apply` / `ReorderGui` - list contents + on-screen order
+- `AccessToolsExt.RebuildCraftingPanel` - nested rebuild / freeze risk
+- `DismantleMode.Active` - Harmony prefixes skip vanilla craft
+- `Craftability.ScoreBucket` - sort buckets, headers, optional checkmarks
+- `CategoryBar.Active` - filters `RecipeSort.Apply`
 
 ---
 
@@ -125,7 +125,7 @@ At least:
 - Multi-craft arrows still drive vanilla `HaveRequirements(..., amount)`
 - Config master switch `EnableMod` still disables extra UI
 
-This mod does **not** own workbench range, building radius, or repair radius. Do not “regression-test range” as if WB+ changed it — vanilla still owns those.
+This mod does **not** own workbench range, building radius, or repair radius. Do not “regression-test range” as if WB+ changed it - vanilla still owns those.
 
 ---
 
@@ -157,9 +157,9 @@ REQUEST
 
 ### Report format
 
-**Changed** — file, method, what  
-**Cause** — root cause  
+**Changed** - file, method, what  
+**Cause** - root cause  
 **Affected systems**  
-**Tests** — build + function  
-**Regression** — what still works  
-**Additionally found** — issues **not** fixed
+**Tests** - build + function  
+**Regression** - what still works  
+**Additionally found** - issues **not** fixed

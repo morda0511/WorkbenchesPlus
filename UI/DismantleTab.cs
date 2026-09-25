@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace WorkbenchesPlus
 {
     /// <summary>
-    /// Third tab beside Craft / Upgrade — enters dismantle mode.
+    /// Third tab beside Craft / Upgrade - enters dismantle mode.
     /// Vanilla selects a tab by setting interactable=false (disabled/orange look).
     /// </summary>
     internal static class DismantleTab
@@ -114,7 +114,7 @@ namespace WorkbenchesPlus
 
             if (on)
             {
-                // Neither Craft nor Upgrade selected — both must stay clickable.
+                // Neither Craft nor Upgrade selected - both must stay clickable.
                 if (craft != null)
                     craft.interactable = true;
                 if (upgrade != null)
@@ -242,7 +242,7 @@ namespace WorkbenchesPlus
                 label.fontStyle = FontStyles.Normal;
             }
 
-            // "DISMANTLE" is longer than CRAFT/UPGRADE — shrink slightly so it stays inside the box.
+            // "DISMANTLE" is longer than CRAFT/UPGRADE - shrink slightly so it stays inside the box.
             float baseSize = label.fontSize;
             if (baseSize > 1f)
                 label.fontSize = Mathf.Max(10f, baseSize * 0.82f);

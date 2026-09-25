@@ -92,8 +92,11 @@ namespace WorkbenchesPlus
             if (Active != CraftCategory.All && !Available.Contains(Active))
                 Active = CraftCategory.All;
 
-            ApplyVisibility();
-            RefreshHighlights();
+            if (EnsureUiAlive())
+            {
+                ApplyVisibility();
+                RefreshHighlights();
+            }
         }
 
         public static void Hide()
@@ -111,8 +114,26 @@ namespace WorkbenchesPlus
 
         private static void DestroyUiOnly()
         {
+            // Unity overloaded == : destroyed objects compare as null.
             if (_root != null)
                 Object.Destroy(_root);
+            ClearUiLists();
+        }
+
+        /// <summary>
+        /// Category chips live under InventoryGui; opening chests / rebuilding the panel can
+        /// destroy them without our Hide/Destroy. Drop stale refs so SyncAvailable cannot NRE.
+        /// </summary>
+        private static bool EnsureUiAlive()
+        {
+            if (_root != null)
+                return true;
+            ClearUiLists();
+            return false;
+        }
+
+        private static void ClearUiLists()
+        {
             _root = null;
             _builtProfileKey = null;
             Buttons.Clear();
@@ -409,11 +430,15 @@ namespace WorkbenchesPlus
 
         private static void ResizeChips()
         {
+            if (!EnsureUiAlive())
+                return;
+
             for (int i = 0; i < Buttons.Count; i++)
             {
-                if (Buttons[i] == null)
+                Button btn = Buttons[i];
+                if (btn == null)
                     continue;
-                LayoutElement le = Buttons[i].GetComponent<LayoutElement>();
+                LayoutElement le = btn.GetComponent<LayoutElement>();
                 if (le != null)
                 {
                     le.minWidth = _chipWidth;
@@ -438,7 +463,7 @@ namespace WorkbenchesPlus
 
         private static void ApplyVisibility()
         {
-            if (Buttons.Count == 0)
+            if (!EnsureUiAlive() || Buttons.Count == 0)
                 return;
 
             bool synced = Available.Count > 0;
@@ -446,8 +471,9 @@ namespace WorkbenchesPlus
             for (int i = 0; i < Buttons.Count; i++)
             {
                 bool show = !synced || Available.Contains(Cats[i]);
-                if (Buttons[i] != null)
-                    Buttons[i].gameObject.SetActive(show);
+                Button btn = Buttons[i];
+                if (btn != null)
+                    btn.gameObject.SetActive(show);
                 if (show)
                     visible++;
             }
@@ -465,23 +491,42 @@ namespace WorkbenchesPlus
 
         private static void RefreshHighlights()
         {
-            for (int i = 0; i < Buttons.Count; i++)
-            {
-                bool on = Cats[i] == Active;
-                if (i < Backgrounds.Count && Backgrounds[i] != null)
-                {
-                    // Tint only — keep vanilla wood/iron sprite readable.
-                    Backgrounds[i].color = on
-                        ? Color.white
-                        : new Color(0.72f, 0.7f, 0.65f, 1f);
-                }
+            if (!EnsureUiAlive())
+                return;
 
-                if (i < Labels.Count && Labels[i] != null)
+            try
+            {
+                for (int i = 0; i < Buttons.Count; i++)
                 {
-                    Labels[i].color = on
-                        ? new Color(1f, 0.92f, 0.55f, 1f)
-                        : new Color(0.82f, 0.76f, 0.58f, 1f);
+                    bool on = i < Cats.Count && Cats[i] == Active;
+                    if (i < Backgrounds.Count)
+                    {
+                        Image bg = Backgrounds[i];
+                        if (bg != null)
+                        {
+                            // Tint only - keep vanilla wood/iron sprite readable.
+                            bg.color = on
+                                ? Color.white
+                                : new Color(0.72f, 0.7f, 0.65f, 1f);
+                        }
+                    }
+
+                    if (i < Labels.Count)
+                    {
+                        TMP_Text label = Labels[i];
+                        if (label != null)
+                        {
+                            label.color = on
+                                ? new Color(1f, 0.92f, 0.55f, 1f)
+                                : new Color(0.82f, 0.76f, 0.58f, 1f);
+                        }
+                    }
                 }
+            }
+            catch (System.Exception)
+            {
+                // Stale chip refs after InventoryGui rebuild - drop and rebuild on next Show.
+                ClearUiLists();
             }
         }
     }

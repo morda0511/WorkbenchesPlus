@@ -44,7 +44,7 @@ namespace WorkbenchesPlus
                 return;
             }
 
-            // Dismantle already built a station-filtered inventory list — do not strip it again
+            // Dismantle already built a station-filtered inventory list - do not strip it again
             // (and keep DismantleMode.Items indices aligned with recipes).
             if (!DismantleMode.Active)
             {
@@ -253,7 +253,7 @@ namespace WorkbenchesPlus
 
                 if (string.IsNullOrEmpty(setKey) && groupWeapons)
                 {
-                    // All arrows/bolts share one group — do not split by Wood/Iron/Bronze.
+                    // All arrows/bolts share one group - do not split by Wood/Iron/Bronze.
                     if (WeaponSetDetector.IsAmmo(r))
                     {
                         setKey = "WeaponAmmo";

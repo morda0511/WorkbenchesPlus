@@ -14,7 +14,7 @@ namespace WorkbenchesPlus
             if (player == null || recipe == null || recipe.m_item == null)
                 return BucketBlocked;
 
-            // Station level / discovery gate — use vanilla HaveRequirements when possible.
+            // Station level / discovery gate - use vanilla HaveRequirements when possible.
             try
             {
                 if (player.HaveRequirements(recipe, discover: false, qualityLevel: 1))

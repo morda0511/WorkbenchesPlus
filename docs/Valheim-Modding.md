@@ -23,7 +23,7 @@ No `[BepInDependency]` on other mods. No Jotunn. No soft Epic Loot API.
 
 All patches are Prefix/Postfix. **No Transpiler.**
 
-### `InventoryGui` — list / overlay
+### `InventoryGui` - list / overlay
 
 | Target | Type | Priority | Class |
 |---|---|---|---|
@@ -34,7 +34,7 @@ All patches are Prefix/Postfix. **No Transpiler.**
 | `Hide` | Prefix | default | `InventoryGuiHideUnbindPatch` |
 | `UpdateRecipe` | Prefix + Postfix | default | `UpdateRecipeMultiplierPatch` |
 
-### `InventoryGui` — dismantle
+### `InventoryGui` - dismantle
 
 | Target | Type | Priority | Class |
 |---|---|---|---|
@@ -46,7 +46,7 @@ All patches are Prefix/Postfix. **No Transpiler.**
 | `SetupRequirementList` | Postfix | default | Strip idol requirement rows |
 | `SetRecipe` | Postfix | default | Bind selected inventory item |
 | `UpdateRecipe` | Postfix | default | DISMANTLE labels, button interactable |
-| `OnCraftPressed` | Prefix | default | `return false` — skip vanilla |
+| `OnCraftPressed` | Prefix | default | `return false` - skip vanilla |
 | `DoCrafting` | Prefix | default | If dismantle progress: complete, `return false` |
 | `OnCraftCancelPressed` | Prefix | default | Cancel progress |
 | `OnTabCraftPressed` | Prefix + Postfix | default | Leave dismantle |
@@ -101,6 +101,6 @@ No custom MonoBehaviour types besides BepInEx `Plugin`. No physics. No `Input` /
 
 **This plugin ships no workbench prefabs.** Thunderstore `icon.png` is packaging only.
 
-Vanilla station prefab internals (colliders, triggers, `CraftingStation` serialized floats): **not inspected in Unity**. Do not copy numbers from other mods. **UNKNOWN – VERIFY** if a task needs exact `m_useDistance` per piece.
+Vanilla station prefab internals (colliders, triggers, `CraftingStation` serialized floats): **not inspected in Unity**. Do not copy numbers from other mods. **UNKNOWN - VERIFY** if a task needs exact `m_useDistance` per piece.
 
 Untracked JSON dumps in the repo root look like AssetStudio recipe/station path-id maps. They are **not** referenced in `.cs`.

@@ -11,7 +11,7 @@ namespace WorkbenchesPlus
     internal static class DismantleInCraftTabPatch
     {
         // Dismantle keeps Craft clickable (interactable=true), which would make
-        // InCraftTab false and push UpdateRecipeList down the upgrade path —
+        // InCraftTab false and push UpdateRecipeList down the upgrade path - 
         // that desyncs rows from inventory items and breaks RemoveItem.
         private static void Postfix(ref bool __result)
         {

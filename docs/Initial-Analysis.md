@@ -18,7 +18,7 @@ Stations = `Player.GetCurrentCraftingStation()`. Filter = `recipe.m_craftingStat
 
 ## Range system
 
-**Absent in WB+.** Vanilla (decompile): `m_useDistance` for GUI interact; `m_buildRange = m_rangeBuild + extensions * m_extraRangePerLevel` for hammer `HaveBuildStationInRange`. Prefab numeric defaults: **UNKNOWN – VERIFY**.
+**Absent in WB+.** Vanilla (decompile): `m_useDistance` for GUI interact; `m_buildRange = m_rangeBuild + extensions * m_extraRangePerLevel` for hammer `HaveBuildStationInRange`. Prefab numeric defaults: **UNKNOWN - VERIFY**.
 
 Do not add a second range implementation later; wrap vanilla once if a future task requires range.
 
@@ -46,7 +46,7 @@ Nothing must run before the first workbench **spawn**; first **GUI open** is eno
 
 ## Multiplayer
 
-Documented as client-side. Dismantle changes the local player inventory (vanilla replication). No dedicated-server branch. Whether the DLL is safe/useless on dedicated: **UNKNOWN – VERIFY** (InventoryGui may be missing or unused).
+Documented as client-side. Dismantle changes the local player inventory (vanilla replication). No dedicated-server branch. Whether the DLL is safe/useless on dedicated: **UNKNOWN - VERIFY** (InventoryGui may be missing or unused).
 
 ## Compatibility
 
@@ -60,7 +60,7 @@ Available. No historical range feature. 1.0.2 = Dismantle. Dirty tree includes P
 
 See `docs/Dependencies.md` and `docs/Risks.md`. Hottest hubs: `StationFilter`, dismantle Prefix skip-vanilla, `RebuildCraftingPanel` nesting.
 
-## Additionally found (not fixed — out of scope)
+## Additionally found (not fixed - out of scope)
 
 - `CraftMultiplierBar.CanAfford` uses upgrade item **current** quality with `HaveRequirements`, not always `quality + 1` (vanilla upgrade uses next quality). May mis-clamp arrows on Upgrade tab if arrows were shown.  
 - `GroupModdedWeaponSets` is also passed into tool/shield detectors.  

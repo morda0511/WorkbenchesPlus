@@ -32,7 +32,7 @@ Runtime (InventoryGui open)
 | `Patches/DismantlePatches.cs` | Dismantle Harmony (tabs, list, craft button, DoCrafting) |
 | `Crafting/*` | Filter, sort, categories, set detectors, dismantle refund |
 | `UI/*` | Category chips, headers, multiplier, dismantle tab, checkmarks |
-| `AccessToolsExt` | Lives at bottom of `UI/CategoryBar.cs` — vanilla field/method accessors |
+| `AccessToolsExt` | Lives at bottom of `UI/CategoryBar.cs` - vanilla field/method accessors |
 | `thunderstore/WorkbenchesPlus/` | Pack root (README, CHANGELOG, icon, DLL copy) |
 | `_stations.json`, `_workbench_recipes.json`, `_workbench_label_map.txt` | **Untracked dumps. Not loaded by the plugin.** |
 

@@ -178,7 +178,7 @@ namespace WorkbenchesPlus
             if (gui == null || !gui.isActiveAndEnabled)
                 return;
 
-            // Never rebuild mid multi-craft — schedule one refresh after it settles.
+            // Never rebuild mid multi-craft - schedule one refresh after it settles.
             _pending = true;
             _pendingAt = UnityEngine.Time.unscaledTime + DebounceSeconds;
         }

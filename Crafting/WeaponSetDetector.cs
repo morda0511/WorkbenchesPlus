@@ -148,7 +148,7 @@ namespace WorkbenchesPlus
 
         private static string[] DefaultOrder()
         {
-            // Arrows/bolts first — most used at the forge/workbench weapon list.
+            // Arrows/bolts first - most used at the forge/workbench weapon list.
             return new[]
             {
                 "Arrow", "Bolt", "Knife", "Sword", "Mace", "Axe", "Battleaxe", "Spear", "Atgeir",

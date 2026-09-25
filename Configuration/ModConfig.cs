@@ -45,7 +45,7 @@ namespace WorkbenchesPlus
             EnableShieldSetGrouping = file.Bind("2 - Sorting", "EnableShieldSetGrouping", true,
                 "Keep shields of the same material together (Wood, Bronze, Iron, BlackMetal, …).");
             EnableMaterialSectionHeaders = file.Bind("2 - Sorting", "EnableMaterialSectionHeaders", true,
-                "Show section labels between material groups (IRON, BRONZE, Arrows — left-aligned).");
+                "Show section labels between material groups (IRON, BRONZE, Arrows), left-aligned.");
             SortMode = file.Bind("2 - Sorting", "SortMode", "CraftableFirst",
                 "CraftableFirst | CategoryThenCraftable | Progression | Alphabetical | Vanilla");
             ArmorPieceOrder = file.Bind("3 - Armor", "ArmorPieceOrder", "Chest,Helmet,Legs,Cape,Other",
@@ -76,7 +76,7 @@ namespace WorkbenchesPlus
             EnableDismantle = file.Bind("5 - UI", "EnableDismantle", true,
                 "Show a Dismantle tab beside Craft/Upgrade to break items back into crafting materials.");
             EnableBuildRangeCycle = file.Bind("6 - Build range", "EnableBuildRangeCycle", true,
-                "Look at a station with a build radius and press Shift+E (AltPlace + Use) to add 50 m, up to +200 m, then back to default. Saved on the station.");
+                "Look at a station with a build radius and press Shift+E (AltPlace + Use) to set build range: default → 50 → 100 → 150 → 200 → default. Saved on the station.");
             DebugLogging = file.Bind("9 - Debug", "DebugLogging", false,
                 "Extra log lines for sorting decisions (set keys, order).");
         }

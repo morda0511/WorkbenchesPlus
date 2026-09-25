@@ -99,7 +99,7 @@ namespace WorkbenchesPlus
                 { "SaddleAsksvin", "Tools" },
                 { "SaddleMoose", "Tools" },
 
-                // Iron (plain iron battleaxe only — not Wood / Black Metal / Crystal)
+                // Iron (plain iron battleaxe only - not Wood / Black Metal / Crystal)
                 { "Battleaxe", "Iron" },
                 { "MaceNeedle", "Iron" }, // Porcupine
                 { "BattleaxeWood", "Wood" },
@@ -114,7 +114,7 @@ namespace WorkbenchesPlus
                 { "ShieldBoneTower", "Shields" },
                 { "ShieldRoots", "Shields" },
 
-                // Black metal (one key — dictionary is case-insensitive)
+                // Black metal (one key - dictionary is case-insensitive)
                 { "BattleaxeBlackmetal", "BlackMetal" },
                 { "Battleaxe_Blackmetal", "BlackMetal" },
 
@@ -123,14 +123,14 @@ namespace WorkbenchesPlus
                 { "BattleaxeCrystal", "Crystal" },
                 { "Battleaxe_Crystal", "Crystal" },
 
-                // Vilebone (forge — BerserkerUndead / Unbjorn)
+                // Vilebone (forge - BerserkerUndead / Unbjorn)
                 { "HelmetBerserkerUndead", "Vilebone" },
                 { "ArmorBerserkerUndeadChest", "Vilebone" },
                 { "ArmorBerserkerUndeadLegs", "Vilebone" },
                 { "FistBjornUndeadClaw", "Vilebone" },
                 { "FistUnbjornClaw", "Vilebone" },
 
-                // Berserker (workbench — not Undead)
+                // Berserker (workbench - not Undead)
                 { "HelmetBerserker", "Berserker" },
                 { "ArmorBerserkerChest", "Berserker" },
                 { "ArmorBerserkerLegs", "Berserker" },
@@ -281,7 +281,7 @@ namespace WorkbenchesPlus
 
             string prefab = StripClone(PrefabName(recipe) ?? "");
 
-            // Exact prefab wins — Porcupine is MaceNeedle, Wolf Sight is TrinketSilverDamage, etc.
+            // Exact prefab wins - Porcupine is MaceNeedle, Wolf Sight is TrinketSilverDamage, etc.
             string exact;
             if (!string.IsNullOrEmpty(prefab) && PrefabOverrides.TryGetValue(prefab, out exact))
                 return exact;
@@ -490,7 +490,7 @@ namespace WorkbenchesPlus
                 || ContainsAny(display, "Draugr Fang", "Draugrzahn"))
                 return "Bows";
 
-            // Plain iron battleaxe only — Wood / Black Metal / Crystal stay out
+            // Plain iron battleaxe only - Wood / Black Metal / Crystal stay out
             if (ContainsAny(display, "Battleaxe", "Streitaxt")
                 && !ContainsAny(prefab, "Crystal", "Wood")
                 && !ContainsAny(prefab, "BlackMetal", "Blackmetal")
@@ -709,7 +709,7 @@ namespace WorkbenchesPlus
             if (bucket.Equals("Staffs", System.StringComparison.OrdinalIgnoreCase))
                 return 80;
 
-            // Shields — single label
+            // Shields - single label
             if (bucket.Equals("Shields", System.StringComparison.OrdinalIgnoreCase))
                 return 0;
 
@@ -774,7 +774,7 @@ namespace WorkbenchesPlus
             if (bucket.Equals("Misc", System.StringComparison.OrdinalIgnoreCase))
                 return 9;
 
-            // Other weapon/armor materials (Bronze, Iron, …) — biome progression
+            // Other weapon/armor materials (Bronze, Iron, …) - biome progression
             return 100 + MaterialProgression.Tier("Weapon" + bucket);
         }
 

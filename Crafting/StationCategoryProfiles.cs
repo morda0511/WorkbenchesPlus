@@ -197,7 +197,7 @@ namespace WorkbenchesPlus
                 return StationKind.Oven;
             if (Contains(blob, "workbench"))
                 return StationKind.Workbench;
-            // plain forge — after blackforge check
+            // plain forge - after blackforge check
             if (Contains(blob, "forge") || name == "$piece_forge")
                 return StationKind.Forge;
 

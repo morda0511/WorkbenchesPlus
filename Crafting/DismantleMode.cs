@@ -50,7 +50,7 @@ namespace WorkbenchesPlus
             if (gui == null)
                 return;
 
-            // Do NOT call OnTabCraftPressed — that marks Craft as selected
+            // Do NOT call OnTabCraftPressed - that marks Craft as selected
             // (interactable=false) and blocks clicking Craft until Upgrade is pressed.
             SetActive(true);
 
@@ -201,7 +201,7 @@ namespace WorkbenchesPlus
             if (item?.m_shared == null || ObjectDB.instance == null)
                 return null;
 
-            // Prefer vanilla lookup — exact item → recipe, no shared-name collisions.
+            // Prefer vanilla lookup - exact item → recipe, no shared-name collisions.
             try
             {
                 Recipe direct = ObjectDB.instance.GetRecipe(item);
@@ -453,7 +453,7 @@ namespace WorkbenchesPlus
             if (item == null)
                 return false;
 
-            // Never dismantle the recipe template — only a live inventory stack.
+            // Never dismantle the recipe template - only a live inventory stack.
             Inventory inv = player.GetInventory();
             item = ResolveLiveInventoryItem(inv, item);
             if (item == null)
@@ -529,7 +529,7 @@ namespace WorkbenchesPlus
             if (inv == null || snapshot == null)
                 return true;
 
-            // Inventory may have rebuilt during the craft timer — resolve a live slot ref.
+            // Inventory may have rebuilt during the craft timer - resolve a live slot ref.
             ItemDrop.ItemData item = ResolveLiveInventoryItem(inv, snapshot);
             if (item == null || !CanDismantle(player, station, item))
             {

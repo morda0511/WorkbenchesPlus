@@ -22,7 +22,7 @@ Vanilla `UpdateRecipeList` uses inventory items with `maxQuality > 1`. WB+ Prefi
 
 Vanilla `Player.RequiredCraftingStation` returns **true for every recipe** at an upgrader. The upgrade tab then keeps recipes that have an `m_upgraderResource` row and lists **inventory** gear.
 
-WB+ 1.0.3: `StationFilter.Apply` **returns immediately** when `current.m_upgrader` so that list is not emptied. `BelongsToStation` also returns true at an upgrader (used by dismantle lookup — dismantle itself is blocked separately).
+WB+ 1.0.3: `StationFilter.Apply` **returns immediately** when `current.m_upgrader` so that list is not emptied. `BelongsToStation` also returns true at an upgrader (used by dismantle lookup - dismantle itself is blocked separately).
 
 Dismantle tab is **hidden** at upgrader stations. `TryGetDismantleRecipe` returns false if `station.m_upgrader`.
 

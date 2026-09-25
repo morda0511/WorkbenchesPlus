@@ -10,8 +10,8 @@
     <AssemblyName>WorkbenchesPlus</AssemblyName>
     <RootNamespace>WorkbenchesPlus</RootNamespace>
     <Product>Workbenches+</Product>
-    <Version>1.0.12</Version>
-    <ModVersion>1.0.12</ModVersion>
+    <Version>1.0.14</Version>
+    <ModVersion>1.0.14</ModVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <DebugType>portable</DebugType>
   </PropertyGroup>

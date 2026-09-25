@@ -24,7 +24,7 @@ Sort and filter station recipes so craftable items rise first, categories sit un
 
 ### Category chips
 
-- Chips under the repair button — **per station** (e.g. cauldron: Health / Stamina / Eitr; prep table: Feasts / Prep / Bait; galdr: Magic / Cast).
+- Chips under the repair button, **per station** (cauldron: Health / Stamina / Eitr; prep table: Feasts / Prep / Bait; galdr: Magic / Cast).
 - Empty chips stay hidden. Fishing baits and feasts are separate from Weapons.
 - **All** shows recipes for the current station only. The Forge of Potential (Schmiede / Werkbank des Potenzials) uses the vanilla upgrade list (no extra filters).
 
@@ -50,8 +50,8 @@ Sort and filter station recipes so craftable items rise first, categories sit un
 ### Build range
 
 - Look at a station that has a hammer/build radius (workbench, stonecutter, artisan table, …).
-- **Shift+E** (vanilla AltPlace + Use) adds **+50 m**, then +100, +150, **+200 m**, then back to default.
-- Saved on that station. Hover shows the current range.
+- **Shift+E** (vanilla AltPlace + Use) sets build range: **default** (vanilla, about 20-36 m) → **50** → **100** → **150** → **200** → default.
+- Absolute metres when overridden, not added on top of vanilla. Saved on that station. Hover shows the current range.
 
 ---
 
@@ -79,7 +79,7 @@ Sort and filter station recipes so craftable items rise first, categories sit un
 | `EnableCraftMultiplier` | Multi-craft arrows beside Craft |
 | `MaxCraftMultiplier` | Max multi-craft amount |
 | `EnableDismantle` | Dismantle tab beside Craft / Upgrade |
-| `EnableBuildRangeCycle` | Shift+E on a build-radius station: +50 m up to +200 m, then default |
+| `EnableBuildRangeCycle` | Shift+E on a build-radius station: default → 50 → 100 → 150 → 200 m |
 | `DebugLogging` | Extra logs |
 
 ---

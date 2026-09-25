@@ -6,13 +6,13 @@ Repository: **present** (this folder is a git work tree). Remote: `origin/main` 
 
 | Hash | Date | Subject |
 |---|---|---|
-| `7a6ac7a` | 2026-09-17 | Initial release 1.0.0 — craftable-first sort, category chips, armor/weapon groups, Thunderstore packs |
+| `7a6ac7a` | 2026-09-17 | Initial release 1.0.0 - craftable-first sort, category chips, armor/weapon groups, Thunderstore packs |
 | `b92b34f` | 2026-09-17 | Shorten README |
 | `64f8e29` | 2026-09-17 | README features/links |
 | `294fb62` | 2026-09-17 | Release 1.0.1 |
 | `5a82b18` | 2026-09-17 | Changelog player-facing only |
 | `532c35b` | 2026-09-17 | Changelog headings NEW FEATURES / UI IMPROVEMENTS / FIX |
-| `279192a` | 2026-09-18 | Release 1.0.2 — Dismantle |
+| `279192a` | 2026-09-18 | Release 1.0.2 - Dismantle |
 | `734cdec` | 2026-09-18 | README mentions Dismantle |
 
 ## Range feature

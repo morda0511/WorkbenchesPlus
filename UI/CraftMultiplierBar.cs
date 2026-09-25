@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace WorkbenchesPlus
 {
     /// <summary>
-    /// Up/down arrows beside Craft — drives vanilla multi-craft (materials + "Craft xN").
+    /// Up/down arrows beside Craft - drives vanilla multi-craft (materials + "Craft xN").
     /// </summary>
     internal static class CraftMultiplierBar
     {
@@ -124,7 +124,7 @@ namespace WorkbenchesPlus
             ApplyVanillaFields(gui);
         }
 
-        /// <summary>Call from UpdateRecipe Postfix — keep arrow interactable in sync.</summary>
+        /// <summary>Call from UpdateRecipe Postfix - keep arrow interactable in sync.</summary>
         public static void SyncAfterUpdateRecipe(InventoryGui gui)
         {
             if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value
@@ -252,7 +252,7 @@ namespace WorkbenchesPlus
             if (upSrc == null || downSrc == null)
             {
                 if (Plugin.Settings != null && Plugin.Settings.DebugLogging.Value)
-                    Plugin.Log.LogWarning("CraftMultiplierBar: quality arrows missing — cannot clone look.");
+                    Plugin.Log.LogWarning("CraftMultiplierBar: quality arrows missing - cannot clone look.");
                 return;
             }
 

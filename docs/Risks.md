@@ -98,7 +98,7 @@ WB+ does **not** own vanilla range. Do not treat “workbench range still 20m”
 
 **Affected:** Other clients see inventory via vanilla sync **if** Valheim replicates that inventory (normal player inventory).
 
-**Test:** Host + client: dismantle on one client; other sees items. Dedicated: **UNKNOWN – VERIFY** whether `InventoryGui` types exist; README says client-side only.
+**Test:** Host + client: dismantle on one client; other sees items. Dedicated: **UNKNOWN - VERIFY** whether `InventoryGui` types exist; README says client-side only.
 
 ---
 
@@ -112,4 +112,4 @@ WB+ does **not** own vanilla range. Do not treat “workbench range still 20m”
 
 ## Prefab / range / CraftingStation fields
 
-**Not currently sensitive in WB+** because unused. Becomes critical the moment someone patches them — then roof, fire, hammer radius, and all stations diverge.
+**Not currently sensitive in WB+** because unused. Becomes critical the moment someone patches them - then roof, fire, hammer radius, and all stations diverge.

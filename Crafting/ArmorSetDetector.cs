@@ -255,7 +255,7 @@ namespace WorkbenchesPlus
 
         private static bool IsStandaloneHelmet(string rest)
         {
-            // Drake is grouped with Wolf — not a standalone set.
+            // Drake is grouped with Wolf - not a standalone set.
             return rest.Equals("Yule", System.StringComparison.OrdinalIgnoreCase)
                 || rest.Equals("Dverger", System.StringComparison.OrdinalIgnoreCase)
                 || rest.Equals("Fisherman", System.StringComparison.OrdinalIgnoreCase)

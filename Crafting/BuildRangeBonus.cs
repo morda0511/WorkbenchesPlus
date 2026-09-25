@@ -5,15 +5,15 @@ using UnityEngine;
 namespace WorkbenchesPlus
 {
     /// <summary>
-    /// Extra hammer/build metres on top of vanilla GetStationBuildRange
-    /// (m_rangeBuild + extensions). Stored per station on the ZDO.
-    /// Cycle: 0 → 50 → 100 → 150 → 200 → 0.
+    /// Optional absolute hammer/build radius override on top of vanilla
+    /// GetStationBuildRange (m_rangeBuild + extensions). Stored per station on the ZDO.
+    /// Cycle: default (vanilla) → 50 → 100 → 150 → 200 → default.
     /// </summary>
     internal static class BuildRangeBonus
     {
         public const string ZdoKey = "WBP_buildExtra";
         public const int Step = 50;
-        public const int MaxExtra = 200;
+        public const int MaxOverride = 200;
 
         private static readonly FieldInfo BuildRangeField =
             AccessTools.Field(typeof(CraftingStation), "m_buildRange");
@@ -35,6 +35,7 @@ namespace WorkbenchesPlus
             return station != null && station.m_rangeBuild > 0.01f;
         }
 
+        /// <summary>0 = vanilla; otherwise absolute metres (50 / 100 / 150 / 200).</summary>
         public static int GetExtra(CraftingStation station)
         {
             if (station == null)
@@ -45,8 +46,7 @@ namespace WorkbenchesPlus
             if (zdo == null)
                 return 0;
 
-            int extra = zdo.GetInt(ZdoKey, 0);
-            return Snap(extra);
+            return Snap(zdo.GetInt(ZdoKey, 0));
         }
 
         public static bool TryCycle(CraftingStation station, Player player)
@@ -58,8 +58,8 @@ namespace WorkbenchesPlus
             if (nv == null || !nv.IsValid() || nv.GetZDO() == null)
                 return false;
 
-            int extra = GetExtra(station);
-            int next = extra >= MaxExtra ? 0 : extra + Step;
+            int current = GetExtra(station);
+            int next = current >= MaxOverride ? 0 : current + Step;
 
             if (!nv.IsOwner())
                 nv.ClaimOwnership();
@@ -71,16 +71,24 @@ namespace WorkbenchesPlus
             if (next <= 0)
                 player.Message(MessageHud.MessageType.Center, "Build range: default (" + FormatMeters(total) + ")");
             else
-                player.Message(MessageHud.MessageType.Center, "Build range: +" + next + " m (" + FormatMeters(total) + ")");
+                player.Message(MessageHud.MessageType.Center, "Build range: " + FormatMeters(total));
 
             return true;
         }
 
+        /// <summary>
+        /// Postfix for GetStationBuildRange: keep vanilla, or replace with absolute override.
+        /// </summary>
         public static float AddExtra(CraftingStation station, float vanillaRange)
         {
             if (!Ready() || !HasBuildRange(station))
                 return vanillaRange;
-            return vanillaRange + GetExtra(station);
+
+            int overrideMeters = GetExtra(station);
+            if (overrideMeters <= 0)
+                return vanillaRange;
+
+            return overrideMeters;
         }
 
         public static void ApplyVisuals(CraftingStation station)
@@ -150,22 +158,22 @@ namespace WorkbenchesPlus
             if (Player.m_localPlayer == null || !station.InUseDistance(Player.m_localPlayer))
                 return "";
 
-            int extra = GetExtra(station);
+            int overrideMeters = GetExtra(station);
             float total = station.GetStationBuildRange();
-            string current = extra <= 0
+            string current = overrideMeters <= 0
                 ? "default (" + FormatMeters(total) + ")"
-                : "+" + extra + " m (" + FormatMeters(total) + ")";
+                : FormatMeters(total);
 
             return "\n[<color=yellow><b>Shift+E</b></color>] Build range  " + current;
         }
 
-        private static int Snap(int extra)
+        private static int Snap(int value)
         {
-            if (extra < 0)
+            if (value < 0)
                 return 0;
-            if (extra > MaxExtra)
-                return MaxExtra;
-            return (extra / Step) * Step;
+            if (value > MaxOverride)
+                return MaxOverride;
+            return (value / Step) * Step;
         }
 
         private static string FormatMeters(float meters)

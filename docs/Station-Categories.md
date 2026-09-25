@@ -19,14 +19,14 @@ Source recipe groups: `_stations.json` (asset PathIDs).
 | Stonecutter | `$piece_stonecutter` | All, Materials, Tools, Misc |
 | Stone Oven | `$piece_oven` | All, Health, Stamina, Eitr, Feasts |
 | Black Forge | `$piece_blackforge` | All, Weapons, Armor, Shields, Ammo, Cast, Tools, Trinkets, Materials |
-| Forge of Potential | `UpgradeStation` | *(no chips — vanilla list)* |
+| Forge of Potential | `UpgradeStation` | *(no chips - vanilla list)* |
 
 Black Forge weapon list headers: **Bows**, **Crossbows**, Carapace/Flametal/**Gold**, named sets (Berzerkr, Jotun, Skull, SkollHati, Eldner, Demolisher, Splitnir, Krom, Niedhogg, Slayer, …). `*Uncooked` → **Cast**.
 
 | Artisan Table | `$piece_artisanstation` | All, Materials, Ammo, Misc |
 | Stonecutter | `$piece_stonecutter` | All, Materials, Tools, Misc |
 | Stone Oven | `$piece_oven` | All, Health, Stamina, Eitr, Feasts |
-| Forge of Potential | `UpgradeStation` | *(no chips — vanilla list)* |
+| Forge of Potential | `UpgradeStation` | *(no chips - vanilla list)* |
 
 ## Recipe groups (from dump)
 

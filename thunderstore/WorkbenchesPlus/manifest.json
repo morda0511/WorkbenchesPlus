@@ -1,6 +1,6 @@
 {
     "name":  "WorkbenchesPlus",
-    "version_number":  "1.0.12",
+    "version_number":  "1.0.14",
     "website_url":  "https://github.com/morda0511/WorkbenchesPlus",
     "description":  "Sort and filter crafting menus: craftable first, categories, armor/weapon sets by biome tier.",
     "dependencies":  [
