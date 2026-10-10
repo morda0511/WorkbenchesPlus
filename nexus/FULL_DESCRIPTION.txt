@@ -1,7 +1,7 @@
 [size=5][b]Workbenches+[/b][/size]
 
 [b]Crafting menus that stay readable.[/b]
-Every station sorts its recipes the same smart way: craftable items first, then headers by material and biome, armor sets and weapon materials together, upgrade variants right behind their base item. Plus a search field, favorites, category chips, a Dismantle tab, build range control and optional auto repair. Does not change recipes or crafting logic.
+Does not change recipes or crafting logic.
 
 [b]Client-side[/b] · Valheim 1.0 · BepInExPack 5.4.2350+. Console players via crossplay cannot load the mod.
 
@@ -19,6 +19,7 @@ Every station sorts its recipes the same smart way: craftable items first, then 
 [*]Variants (Blood, Lightning, Frost/Fire, ...) sit directly behind the weapon they are made from. Deep North casts sit behind the item they cast.
 [*]Food: Health, Stamina and Eitr headers, strongest food first. Feasts and fishing bait follow the biomes.
 [*]The Forge of Potential list is sorted too.
+[*]Works with crafting stations from other mods.
 [*]Nothing to set up: there is no sort mode option, one order for everything.
 [/list]
 
@@ -37,7 +38,8 @@ Every station sorts its recipes the same smart way: craftable items first, then 
 [b]Category chips[/b]
 [list]
 [*]Chips under the repair button: Weapons, Armor, Shields, Tools, Ammo, Magic, Health, Stamina, Eitr, Feasts, Prep, Fish, Bait, Potions, Cast, Materials, Trinkets, Clothes, Misc. Empty chips are hidden.
-[*]Click [b]Weapons[/b] and a small filter panel opens under it: a grid of symbols (1-Hand, 2-Hand, Knives, Swords, Clubs, Axes, Spears, Polearms, Bows, Crossbows, Fists, Bombs). Hand and type combine (2-Hand + Axes). A 1-handed axe is in 1-Hand and in Axes.
+[*]Click [b]Weapons[/b] and a filter box opens with symbols: 1-Hand, 2-Hand, Knives, Swords, Clubs, Axes, Spears, Polearms, Bows, Crossbows, Fists, Bombs. One symbol at a time.
+[*]Bows and crossbows only count under their own symbol.
 [*][b]All[/b] shows recipes for the current station only.
 [/list]
 
@@ -49,6 +51,7 @@ Every station sorts its recipes the same smart way: craftable items first, then 
 [b]Dismantle[/b]
 [list]
 [*]New tab beside Craft / Upgrade: break station-crafted items back into their materials.
+[*]Shows exactly which materials you get back before you dismantle.
 [*]Food and potions are never listed. The refund percentage is configurable.
 [*]Not available at the Forge of Potential.
 [/list]
