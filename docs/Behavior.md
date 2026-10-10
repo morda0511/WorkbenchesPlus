@@ -24,21 +24,16 @@ Vanilla `Player.RequiredCraftingStation` returns **true for every recipe** at an
 
 WB+ 1.0.3: `StationFilter.Apply` **returns immediately** when `current.m_upgrader` so that list is not emptied. `BelongsToStation` also returns true at an upgrader (used by dismantle lookup - dismantle itself is blocked separately).
 
+Rows are still sorted and get headers: `RecipeSort.ReorderGui` reorders the finished rows only (the recipe list itself is not touched), craftability comes from each row.
+
 Dismantle tab is **hidden** at upgrader stations. `TryGetDismantleRecipe` returns false if `station.m_upgrader`.
 
 ## Sorting
 
-`RecipeSort.Compare` combines, depending on config:
+`RecipeSort` orders the list with `RecipeOrder.Compare` (craftable = `Craftability.ScoreBucket` fully, via `SectionTier`).
+See `docs/Sorting.md` for the single ordering (craftable, group, kind, class, piece, tier, name).
 
-- Category order (`CategoryThenCraftable`)
-- Craft buckets (`Craftability.ScoreBucket`: fully / partial / none / blocked)
-- Material buckets (`MaterialNameBucket`) and biome tier (`MaterialProgression`)
-- Armor/weapon/tool/shield set keys and piece order
-- Station min level (`Progression` mode)
-- Localized/shared item name
-- Original index (stable)
-
-`ReorderGui` rewrites `m_availableRecipes` order and `anchoredPosition.y`. Optional `MaterialSectionHeaders` insert extra rows and grow the list height.
+`ReorderGui` rewrites `m_availableRecipes` order and `anchoredPosition.y`. `MaterialSectionHeaders` insert extra rows and grow the list height.
 
 ## Categories
 
@@ -81,8 +76,8 @@ If `RefreshOnInventoryChange`, subscribe to local inventory `m_onChanged`. Debou
 
 ## What does **not** happen
 
-- No change to `m_useDistance`, `m_rangeBuild`, `m_buildRange`, extensions, roof, fire.
+- No change to `m_useDistance`, `m_rangeBuild`, roof, fire. `GetStationBuildRange` is replaced by an absolute override only when the player cycled it on that station.
 - No hammer/build piece list patches (`HaveRequirements(Piece)` is unused).
-- No hotkeys / Input system.
-- No ZDO writes, RPCs, or config sync.
+- Only input hook: vanilla AltPlace + Use (Shift+E) on a station cycles the build range override.
+- One ZDO write: `WBP_buildExtra` (int) on the station when the build range is cycled. No RPCs, no config sync.
 - No Jotunn prefabs.

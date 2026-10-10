@@ -11,7 +11,7 @@ namespace WorkbenchesPlus
     internal static class DismantleTab
     {
         private const string RootName = "WBP_TabDismantle";
-        private const string TabLabel = "DISMANTLE";
+        private static string TabLabel => Loc.T("dismantle");
 
         private static GameObject _tab;
         private static Button _button;
@@ -289,6 +289,7 @@ namespace WorkbenchesPlus
                 rt.anchoredPosition = new Vector2(
                     upgradeRt.anchoredPosition.x + step,
                     upgradeRt.anchoredPosition.y);
+                LayoutOverrides.Nudge(rt, "dismantle");
                 return;
             }
 
@@ -301,6 +302,7 @@ namespace WorkbenchesPlus
             rt.anchoredPosition = new Vector2(
                 upgradeRt.anchoredPosition.x + width + 4f,
                 upgradeRt.anchoredPosition.y);
+            LayoutOverrides.Nudge(rt, "dismantle");
         }
 
         private static void OnClicked()

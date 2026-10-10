@@ -8,10 +8,21 @@ namespace WorkbenchesPlus
     /// <summary>
     /// Non-clickable separator rows in the recipe list, e.g. left-aligned IRON / Arrows.
     /// </summary>
+    /// <summary>One list row in display order: which header it sits under (null = none).</summary>
+    internal struct HeaderSlot
+    {
+        public string Key;
+        public string Label;
+        public Color Color;
+    }
+
     internal static class MaterialSectionHeaders
     {
         private const string RootName = "WBP_MaterialHeaders";
         private const string HeaderPrefix = "WBP_MatHeader_";
+
+        // Valheim's gold (same family as the recipe title / selected tab).
+        public static readonly Color HeaderGold = new Color(1f, 0.78f, 0.3f, 1f);
 
         private static GameObject _root;
         private static readonly List<GameObject> Headers = new List<GameObject>();
@@ -38,28 +49,14 @@ namespace WorkbenchesPlus
         /// </summary>
         public static int Apply(
             Transform listParent,
-            IList<Recipe> recipesInOrder,
+            IList<HeaderSlot> slotsInOrder,
             IList<GameObject> recipeElements,
             float rowSpace)
         {
             Clear();
 
-            if (listParent == null || recipesInOrder == null || recipeElements == null)
-                return recipesInOrder != null ? recipesInOrder.Count : 0;
-            if (Plugin.Settings == null || !Plugin.Settings.EnableMaterialSectionHeaders.Value)
-            {
-                for (int i = 0; i < recipeElements.Count; i++)
-                {
-                    GameObject go = recipeElements[i];
-                    if (go == null)
-                        continue;
-                    RectTransform rt = go.transform as RectTransform;
-                    if (rt != null)
-                        rt.anchoredPosition = new Vector2(0f, -i * rowSpace);
-                }
-                return recipeElements.Count;
-            }
-
+            if (listParent == null || slotsInOrder == null || recipeElements == null)
+                return slotsInOrder != null ? slotsInOrder.Count : 0;
             _root = new GameObject(RootName, typeof(RectTransform));
             _root.transform.SetParent(listParent, false);
             RectTransform rootRt = _root.transform as RectTransform;
@@ -88,29 +85,15 @@ namespace WorkbenchesPlus
 
             string lastSectionKey = null;
             int slot = 0;
-            Player player = Player.m_localPlayer;
-            bool craftSplit = Plugin.Settings != null && Plugin.Settings.UseCraftBuckets();
 
-            for (int i = 0; i < recipesInOrder.Count; i++)
+            for (int i = 0; i < slotsInOrder.Count; i++)
             {
-                Recipe r = recipesInOrder[i];
-                string headerKey = MaterialNameBucket.Resolve(r);
-
-                // Section = material + craft tier, so craftable Bronze gets its own
-                // "Bronze" label at the top and uncraftable Bronze can show "Bronze" again.
-                int craftTier = 0;
-                if (craftSplit && player != null && r != null)
-                    craftTier = Craftability.ScoreBucket(player, r);
-
-                string sectionKey = string.IsNullOrEmpty(headerKey)
-                    ? null
-                    : headerKey + "|" + craftTier;
+                string sectionKey = slotsInOrder[i].Key;
 
                 if (!string.IsNullOrEmpty(sectionKey)
                     && !string.Equals(sectionKey, lastSectionKey, System.StringComparison.OrdinalIgnoreCase))
                 {
-                    string label = MaterialNameBucket.Label(headerKey);
-                    GameObject header = MakeHeader(label, font, sampleRow);
+                    GameObject header = MakeHeader(slotsInOrder[i].Label, slotsInOrder[i].Color, font, sampleRow);
                     header.transform.SetParent(_root.transform, false);
                     RectTransform hrt = header.transform as RectTransform;
                     hrt.anchoredPosition = new Vector2(0f, -slot * rowSpace);
@@ -140,16 +123,17 @@ namespace WorkbenchesPlus
             RectTransform parentRt = listParent as RectTransform;
             if (parentRt != null && slot > 0)
             {
-                Vector2 sd = parentRt.sizeDelta;
-                float need = slot * rowSpace + 4f;
-                if (sd.y < need)
-                    parentRt.sizeDelta = new Vector2(sd.x, need);
+                // Vanilla sizes the list with SetSizeWithCurrentAnchors (rows only, no headers). Use the
+                // real height: sizeDelta.y is only an offset when the list is stretched vertically.
+                float need = slot * rowSpace;
+                if (parentRt.rect.height < need)
+                    parentRt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, need);
             }
 
             return slot;
         }
 
-        private static GameObject MakeHeader(string text, TMP_FontAsset font, GameObject sampleRow)
+        private static GameObject MakeHeader(string text, Color color, TMP_FontAsset font, GameObject sampleRow)
         {
             GameObject go;
             float height = 28f;
@@ -207,7 +191,7 @@ namespace WorkbenchesPlus
             label.alignment = TextAlignmentOptions.MidlineLeft;
             label.fontSize = 12f;
             label.fontStyle = FontStyles.Bold;
-            label.color = new Color(0.85f, 0.75f, 0.45f, 1f);
+            label.color = color;
             label.raycastTarget = false;
             label.enableAutoSizing = true;
             label.fontSizeMin = 10f;
@@ -236,6 +220,14 @@ namespace WorkbenchesPlus
                 all[i].enabled = false;
             }
 
+            // The cloned row was instantiated while its Button was in a tinted state: reset it.
+            Graphic[] graphics = go.GetComponentsInChildren<Graphic>(true);
+            for (int i = 0; i < graphics.Length; i++)
+            {
+                if (graphics[i] != null)
+                    graphics[i].canvasRenderer.SetColor(Color.white);
+            }
+
             return go;
         }
 
@@ -247,6 +239,8 @@ namespace WorkbenchesPlus
                 if (buttons[i] == null)
                     continue;
                 buttons[i].onClick.RemoveAllListeners();
+                // No colour-tint state change: a disabled tint would stay on the clone's text.
+                buttons[i].transition = Selectable.Transition.None;
                 buttons[i].interactable = false;
                 buttons[i].enabled = false;
             }

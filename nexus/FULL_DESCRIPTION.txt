@@ -1,7 +1,7 @@
 [size=5][b]Workbenches+[/b][/size]
 
 [b]Crafting menus that stay readable.[/b]
-Sort and filter station recipes so craftable items rise first, categories sit under the repair button, and armor sets and weapon materials stay together in biome order. Dismantle station-crafted items back into their materials from a tab beside Craft / Upgrade. Does not change recipes or crafting logic.
+Every station sorts its recipes the same smart way: craftable items first, then headers by material and biome, armor sets and weapon materials together, upgrade variants right behind their base item. Plus a search field, favorites, category chips, a Dismantle tab, build range control and optional auto repair. Does not change recipes or crafting logic.
 
 [b]Client-side[/b] · Valheim 1.0 · BepInExPack 5.4.2350+. Console players via crossplay cannot load the mod.
 
@@ -11,40 +11,67 @@ Sort and filter station recipes so craftable items rise first, categories sit un
 
 [size=4][b]Features[/b][/size]
 
-[b]Craftable first[/b]
+[b]Sorting (every station)[/b]
 [list]
-[*]Recipes you can craft now sit at the top.
-[*]Partial materials next, then the rest.
-[*]Uncraftable set pieces stay below craftable ones.
+[*]Recipes you can craft now sit at the top, with their own headers.
+[*]Below that: headers by material and biome (Wood, Bronze, Iron, Silver, Black Metal, Flametal, ...), in progression order.
+[*]Armor sets stay together: chest, helmet, legs, cape. Weapons of one material stay together, ordered by weapon type.
+[*]Variants (Blood, Lightning, Frost/Fire, ...) sit directly behind the weapon they are made from. Deep North casts sit behind the item they cast.
+[*]Food: Health, Stamina and Eitr headers, strongest food first. Feasts and fishing bait follow the biomes.
+[*]The Forge of Potential list is sorted too.
+[*]Nothing to set up: there is no sort mode option, one order for everything.
+[/list]
+
+[b]Search and favorites[/b]
+[list]
+[*]Search field at the right end of the tab row. Filters by recipe name or header (type "iron" to see the Iron block).
+[*][b]Right-click[/b] a recipe to make it a favorite. Favorites form a block at the top of every list. Saved in BepInEx/config/WorkbenchesPlus_favorites.txt.
+[/list]
+
+[b]Biome tags and food values[/b]
+[list]
+[*]Gear headers carry the biome of their material, for example Iron [Swamp], Black Metal [Plains].
+[*]Food shows its strongest bar after the name: Health red, Stamina yellow, Eitr blue.
 [/list]
 
 [b]Category chips[/b]
 [list]
-[*]Chips under the repair button: All, Weapons, Armor, Shields, Tools, Building, Furniture, Food, Potions, Materials, Misc.
+[*]Chips under the repair button: Weapons, Armor, Shields, Tools, Ammo, Magic, Health, Stamina, Eitr, Feasts, Prep, Fish, Bait, Potions, Cast, Materials, Trinkets, Clothes, Misc. Empty chips are hidden.
+[*]Click [b]Weapons[/b] and a small filter panel opens under it: a grid of symbols (1-Hand, 2-Hand, Knives, Swords, Clubs, Axes, Spears, Polearms, Bows, Crossbows, Fists, Bombs). Hand and type combine (2-Hand + Axes). A 1-handed axe is in 1-Hand and in Axes.
 [*][b]All[/b] shows recipes for the current station only.
 [/list]
 
-[b]Armor set grouping[/b]
+[b]Upgrade tab[/b]
 [list]
-[*]Helmet, chest, legs, and cape from the same set stay together.
-[*]Piece order is configurable.
+[*]Shows the current stat next to the upgraded one, for example Durability: 400 (now: 200).
 [/list]
 
-[b]Weapon material grouping[/b]
+[b]Dismantle[/b]
 [list]
-[*]Weapons of the same material stay together (Iron with Iron, Black Metal with Black Metal).
-[*]Groups follow biome / material tier order (Copper, Bronze, Iron, …).
-[/list]
-
-[b]Sort modes[/b]
-[list]
-[*]CraftableFirst, CategoryThenCraftable, Progression, Alphabetical, Vanilla.
+[*]New tab beside Craft / Upgrade: break station-crafted items back into their materials.
+[*]Food and potions are never listed. The refund percentage is configurable.
+[*]Not available at the Forge of Potential.
 [/list]
 
 [b]Craft multiplier[/b]
 [list]
-[*]Up / down arrows beside the Craft button set how many crafts to run.
-[*]Caps at MaxCraftMultiplier (default 99).
+[*]Up / down arrows beside the Craft button set how many crafts to run (up to 99).
+[/list]
+
+[b]Build range[/b]
+[list]
+[*]Look at a station the hammer needs (workbench, forge, ...) and press [b]Shift+E[/b] (AltPlace + Use) to cycle its build range: default, 50, 100, 150, 200 m.
+[*]Saved on the station. Not possible inside someone else's ward.
+[/list]
+
+[b]Auto repair (off by default)[/b]
+[list]
+[*]Repairs worn armor, weapons and tools one item at a time while you stand inside the build range of a matching station. Needs roof and fire like the normal repair.
+[/list]
+
+[b]Note for servers[/b]
+[list]
+[*]The mod is purely client-side and works on any server. Dismantle, build range and auto repair are decided on your client, so a server with strict rules may not want them. Each can be switched off in the config.
 [/list]
 
 [size=4][b]Config[/b][/size]
@@ -56,20 +83,15 @@ One file only (no YAML):
 [list]
 [*][b]EnableMod[/b]: Master switch
 [*][b]EnableCategories[/b]: Category chips
-[*][b]EnableCraftableFirst[/b]: Prioritize craftable recipes
-[*][b]EnableArmorSetGrouping[/b]: Keep armor sets together
-[*][b]EnableWeaponSetGrouping[/b]: Keep weapons by material together
-[*][b]SortMode[/b]: CraftableFirst / CategoryThenCraftable / Progression / Alphabetical / Vanilla
-[*][b]ArmorPieceOrder[/b]: Order inside an armor set
-[*][b]WeaponPieceOrder[/b]: Order inside a weapon material group
-[*][b]GroupModdedArmorSets[/b]: Heuristics for modded armor
-[*][b]GroupModdedWeaponSets[/b]: Heuristics for modded weapons
-[*][b]RefreshOnInventoryChange[/b]: Re-sort when inventory changes
-[*][b]RefreshOnStationChange[/b]: Reset category to All when switching stations
-[*][b]ShowCraftabilityIndicators[/b]: Green check on fully craftable rows
+[*][b]ShowCraftabilityIndicators[/b]: Green check on fully craftable rows (default off)
 [*][b]EnableCraftMultiplier[/b]: Multi-craft arrows beside Craft
-[*][b]MaxCraftMultiplier[/b]: Max multi-craft amount
-[*][b]DebugLogging[/b]: Extra logs
+[*][b]EnableUpgradeCompare[/b]: Upgrade tab: current stat next to the upgraded one
+[*][b]EnableDismantle[/b]: Dismantle tab
+[*][b]DismantleRefundPercent[/b]: Percent of materials returned (0-100, default 100)
+[*][b]EnableBuildRangeCycle[/b]: Shift+E build range cycle
+[*][b]BuildRangeMaxMeters[/b]: Highest build range (50-500, default 200)
+[*][b]EnableAutoRepair[/b]: Auto repair (default off)
+[*][b]DebugLogging[/b]: Writes a recipe dump for bug reports
 [/list]
 
 [size=4][b]Install[/b][/size]

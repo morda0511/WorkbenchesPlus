@@ -10,11 +10,19 @@
     <AssemblyName>WorkbenchesPlus</AssemblyName>
     <RootNamespace>WorkbenchesPlus</RootNamespace>
     <Product>Workbenches+</Product>
-    <Version>1.0.14</Version>
-    <ModVersion>1.0.14</ModVersion>
+    <ModVersion>1.0.15</ModVersion>
+    <Version>$(ModVersion)</Version>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <DebugType>portable</DebugType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="tools/**" />
+    <!-- Filter symbols: Assets/Icons/<Key>.png is compiled into the DLL (see Assets/Icons/README.txt). -->
+    <EmbeddedResource Include="Assets/layout.json" LogicalName="WorkbenchesPlus.layout.json" Condition="Exists('Assets/layout.json')" />
+    <EmbeddedResource Include="Assets/Icons/*.png" LogicalName="WorkbenchesPlus.icons.%(Filename)%(Extension)" />
+    <None Remove="tools/**" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="BepInEx">
@@ -27,6 +35,10 @@
     </Reference>
     <Reference Include="assembly_valheim">
       <HintPath>$(ManagedDir)\assembly_valheim.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="assembly_guiutils">
+      <HintPath>$(ManagedDir)\assembly_guiutils.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="assembly_utils">
@@ -63,11 +75,22 @@
     </Reference>
   </ItemGroup>
 
+  <!-- Single source of truth for the version: ModVersion above feeds Plugin.ModVersion. -->
+  <Target Name="GenerateModVersion" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <ModVersionFile>$(IntermediateOutputPath)ModVersion.g.cs</ModVersionFile>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(ModVersionFile)" Lines="namespace WorkbenchesPlus { internal static class ModBuild { public const string Version = &quot;$(ModVersion)&quot;%3B } }" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <Compile Include="$(ModVersionFile)" />
+    </ItemGroup>
+  </Target>
+
   <Target Name="Deploy" AfterTargets="Build">
     <PropertyGroup>
       <DeployDir>$(BepInExDir)\plugins\WorkbenchesPlus</DeployDir>
       <ThunderstorePackRoot>$(MSBuildThisFileDirectory)thunderstore\WorkbenchesPlus</ThunderstorePackRoot>
-      <DesktopModPackDir>C:\Users\morda\Desktop\Valheim mods\Workbenches+</DesktopModPackDir>
+      <DesktopModPackDir Condition="'$(DesktopModPackDir)' == ''">$(MSBuildThisFileDirectory)thunderstore\packs</DesktopModPackDir>
     </PropertyGroup>
     <MakeDir Directories="$(DeployDir)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DeployDir)" OverwriteReadOnlyFiles="true" />

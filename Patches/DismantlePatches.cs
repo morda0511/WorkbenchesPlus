@@ -33,25 +33,20 @@ namespace WorkbenchesPlus
     [HarmonyPatch(typeof(InventoryGui), "AddRecipeToList")]
     internal static class DismantleAddRecipeToListPatch
     {
-        private static int _injectIndex;
 
         public static void ResetInject()
         {
-            _injectIndex = 0;
+            DismantleMode.BeginRows();
         }
 
         // Attach the real inventory ItemData so selection/removal stay paired.
-        private static void Prefix(ref ItemDrop.ItemData item, ref bool canCraft)
+        private static void Prefix(Recipe recipe, ref ItemDrop.ItemData item, ref bool canCraft)
         {
             if (!DismantleMode.Active)
                 return;
 
             canCraft = true;
-            if (_injectIndex >= 0 && _injectIndex < DismantleMode.Items.Count)
-            {
-                item = DismantleMode.Items[_injectIndex];
-                _injectIndex++;
-            }
+            item = DismantleMode.ClaimItemForRow(recipe, item);
         }
     }
 
@@ -135,6 +130,77 @@ namespace WorkbenchesPlus
         private static readonly FieldInfo ItemCraftTypeField =
             AccessTools.Field(typeof(InventoryGui), "m_itemCraftType");
 
+        /// <summary>Refund list in the requirement slots, no station-level badge, stats of the item as it is.</summary>
+        private static void ShowDismantleInfo(InventoryGui gui, Player player, ItemDrop.ItemData item)
+        {
+            if (gui.m_minStationLevelIcon != null)
+                gui.m_minStationLevelIcon.gameObject.SetActive(false);
+
+            GameObject[] slots = gui.m_recipeRequirementList;
+            if (slots == null)
+                return;
+
+            List<KeyValuePair<ItemDrop, int>> refund = item != null && player != null
+                ? DismantleMode.RefundFor(player, player.GetCurrentCraftingStation(), item)
+                : new List<KeyValuePair<ItemDrop, int>>();
+
+            int shown = 0;
+            for (int i = 0; i < refund.Count && shown < slots.Length; i++)
+            {
+                ItemDrop drop = refund[i].Key;
+                if (drop == null || drop.m_itemData == null || refund[i].Value <= 0 || slots[shown] == null)
+                    continue;
+                ShowSlot(slots[shown].transform, drop.m_itemData, refund[i].Value);
+                shown++;
+            }
+            for (int i = shown; i < slots.Length; i++)
+            {
+                if (slots[i] != null)
+                    InventoryGui.HideRequirement(slots[i].transform);
+            }
+
+            if (item != null && gui.m_recipeDecription != null)
+            {
+                try
+                {
+                    gui.m_recipeDecription.text = Localization.instance.Localize(
+                        ItemDrop.ItemData.GetTooltip(item, item.m_quality, false, item.m_worldLevel));
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        private static void ShowSlot(Transform root, ItemDrop.ItemData data, int amount)
+        {
+            Transform iconT = root.Find("res_icon"), nameT = root.Find("res_name"), amountT = root.Find("res_amount");
+            if (iconT == null || nameT == null || amountT == null)
+                return;
+            Image icon = iconT.GetComponent<Image>();
+            TMP_Text name = nameT.GetComponent<TMP_Text>();
+            TMP_Text count = amountT.GetComponent<TMP_Text>();
+            iconT.gameObject.SetActive(true);
+            nameT.gameObject.SetActive(true);
+            amountT.gameObject.SetActive(true);
+            string label = Localization.instance.Localize(data.m_shared.m_name);
+            if (icon != null)
+            {
+                icon.sprite = data.GetIcon();
+                icon.color = Color.white;
+            }
+            if (name != null)
+                name.text = label;
+            if (count != null)
+            {
+                count.text = amount.ToString();
+                count.color = Color.white;
+            }
+            UITooltip tip = root.GetComponent<UITooltip>();
+            if (tip != null)
+                tip.m_text = label;
+        }
+
         private static void Postfix(InventoryGui __instance)
         {
             try
@@ -149,15 +215,20 @@ namespace WorkbenchesPlus
                 {
                     TMP_Text typeLabel = ItemCraftTypeField.GetValue(__instance) as TMP_Text;
                     if (typeLabel != null)
-                        typeLabel.text = "DISMANTLE";
+                        typeLabel.text = Loc.T("dismantle");
                 }
+
+                ItemDrop.ItemData item = DismantleMode.ResolveSelectedItem(__instance);
+                Player player = Player.m_localPlayer;
+
+                // Vanilla filled this panel for "upgrade to quality+1": costs of the next level, the
+                // station level that needs, and the stats of the next level. Show the dismantle view instead.
+                ShowDismantleInfo(__instance, player, item);
 
                 // While the craft bar is running, leave vanilla progress UI alone.
                 if (DismantleMode.HasProgress)
                     return;
 
-                ItemDrop.ItemData item = DismantleMode.ResolveSelectedItem(__instance);
-                Player player = Player.m_localPlayer;
                 bool can = item != null && player != null
                     && DismantleMode.CanDismantle(player, player.GetCurrentCraftingStation(), item);
 
@@ -169,7 +240,7 @@ namespace WorkbenchesPlus
                         btn.interactable = can;
                         TMP_Text label = btn.GetComponentInChildren<TMP_Text>(true);
                         if (label != null)
-                            label.text = "DISMANTLE";
+                            label.text = Loc.T("dismantle");
                     }
                 }
             }

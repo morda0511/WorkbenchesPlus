@@ -38,6 +38,14 @@ namespace WorkbenchesPlus
             if (recipe == null)
                 return false;
 
+            // The player's own station: ask vanilla. It knows empty names, upgrader stations and whatever
+            // mods patch to share recipes between (custom) stations.
+            Player player = Player.m_localPlayer;
+            if (player != null && current == player.GetCurrentCraftingStation())
+                return player.RequiredCraftingStation(recipe, 1, false);
+
+            // Any other station (not used in practice): same rules by name.
+
             CraftingStation required = recipe.m_craftingStation;
 
             // No station nearby: only recipes that need no station.
@@ -51,8 +59,6 @@ namespace WorkbenchesPlus
             // Recipe needs a station: must be the same type (by m_name).
             if (required != null)
             {
-                if (string.IsNullOrEmpty(required.m_name) || string.IsNullOrEmpty(current.m_name))
-                    return false;
                 return required.m_name == current.m_name;
             }
 

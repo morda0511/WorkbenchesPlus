@@ -9,6 +9,15 @@ namespace WorkbenchesPlus
         public const int BucketNone = 2;
         public const int BucketBlocked = 3;
 
+        /// <summary>
+        /// Section tier for sorting + headers: 0 = fully craftable, 1 = everything else.
+        /// Partial / none / blocked share one block, so a label never repeats when nothing is craftable.
+        /// </summary>
+        public static int SectionTier(int bucket)
+        {
+            return bucket == BucketFully ? 0 : 1;
+        }
+
         public static int ScoreBucket(Player player, Recipe recipe)
         {
             if (player == null || recipe == null || recipe.m_item == null)
@@ -63,38 +72,6 @@ namespace WorkbenchesPlus
                 return BucketBlocked;
             }
             return BucketPartial;
-        }
-
-        /// <summary>0 = none of materials, 100 = all materials (ignores station gate).</summary>
-        public static int MaterialPercent(Player player, Recipe recipe)
-        {
-            if (player == null || recipe?.m_resources == null)
-                return 0;
-            Inventory inv = player.GetInventory();
-            if (inv == null)
-                return 0;
-
-            int need = 0;
-            int have = 0;
-            Piece.Requirement[] res = recipe.m_resources;
-            CraftingStation station = player.GetCurrentCraftingStation();
-            for (int i = 0; i < res.Length; i++)
-            {
-                Piece.Requirement r = res[i];
-                if (r?.m_resItem?.m_itemData?.m_shared == null)
-                    continue;
-                if (!CountsTowardCraft(station, r))
-                    continue;
-                int amount = r.GetAmount(1);
-                if (amount <= 0)
-                    continue;
-                need += amount;
-                string shared = r.m_resItem.m_itemData.m_shared.m_name;
-                have += System.Math.Min(amount, inv.CountItems(shared, -1, true));
-            }
-            if (need <= 0)
-                return 0;
-            return (have * 100) / need;
         }
 
         /// <summary>

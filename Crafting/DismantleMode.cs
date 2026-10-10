@@ -17,6 +17,46 @@ namespace WorkbenchesPlus
         /// <summary>Parallel to the recipe list rows while Active (same index).</summary>
         public static readonly List<ItemDrop.ItemData> Items = new List<ItemDrop.ItemData>();
 
+        /// <summary>The recipe of each entry in Items (same index): lets the row builder match by recipe, not by position.</summary>
+        public static readonly List<Recipe> Recipes = new List<Recipe>();
+
+        /// <summary>The inventory item behind each row that was really created (same index as the GUI rows).</summary>
+        public static readonly List<ItemDrop.ItemData> RowItems = new List<ItemDrop.ItemData>();
+        private static int _nextEntry;
+
+        /// <summary>Start of a list rebuild: forget the previous rows.</summary>
+        public static void BeginRows()
+        {
+            RowItems.Clear();
+            _nextEntry = 0;
+        }
+
+        /// <summary>
+        /// Called for every row the game creates. Vanilla skips some recipes (upgrade-only ones) without telling us,
+        /// so the item is looked up by recipe, walking forward through our list, never by counting rows.
+        /// </summary>
+        public static ItemDrop.ItemData ClaimItemForRow(Recipe recipe, ItemDrop.ItemData fallback)
+        {
+            int i = _nextEntry;
+            while (i < Recipes.Count && Recipes[i] != recipe)
+                i++;
+            ItemDrop.ItemData item = fallback;
+            if (i < Recipes.Count && i < Items.Count)
+            {
+                item = Items[i];
+                _nextEntry = i + 1;
+            }
+            RowItems.Add(item);
+            return item;
+        }
+
+        private static void SnapshotRecipes(List<Recipe> recipes)
+        {
+            Recipes.Clear();
+            if (recipes != null)
+                Recipes.AddRange(recipes);
+        }
+
         private static ItemDrop.ItemData _progressItem;
         private static Recipe _progressRecipe;
 
@@ -79,6 +119,7 @@ namespace WorkbenchesPlus
         public static void BuildList(List<Recipe> recipes)
         {
             Items.Clear();
+            Recipes.Clear();
             if (recipes == null)
                 return;
             recipes.Clear();
@@ -107,9 +148,23 @@ namespace WorkbenchesPlus
                 if (!TryGetDismantleRecipe(player, station, item, out recipe))
                     continue;
 
+                // The game builds no row for upgrade-only recipes; keep them out so list and rows stay aligned.
+                if (recipe.m_noCraftOnlyUpgrade)
+                    continue;
+
                 recipes.Add(recipe);
                 Items.Add(item);
             }
+            SnapshotRecipes(recipes);
+        }
+
+        /// <summary>What dismantling this item gives back (empty when it cannot be dismantled here).</summary>
+        public static List<KeyValuePair<ItemDrop, int>> RefundFor(Player player, CraftingStation station, ItemDrop.ItemData item)
+        {
+            Recipe recipe;
+            if (!TryGetDismantleRecipe(player, station, item, out recipe))
+                return new List<KeyValuePair<ItemDrop, int>>();
+            return BuildRefund(recipe, item.m_quality);
         }
 
         public static bool CanDismantle(Player player, CraftingStation station, ItemDrop.ItemData item)
@@ -130,8 +185,14 @@ namespace WorkbenchesPlus
             if (item.m_equipped)
                 return false;
 
+            if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Consumable)
+                return false;
+
             recipe = FindRecipe(item, station);
             if (recipe == null || recipe.m_item == null)
+                return false;
+            // "Any one of these" recipes consume only one ingredient; which one is unknown afterwards.
+            if (recipe.m_requireOnlyOneIngredient)
                 return false;
             // Forge of Potential is upgrade-only; do not treat every item as dismantleable.
             if (StationFilter.IsUpgrader(station))
@@ -157,12 +218,12 @@ namespace WorkbenchesPlus
 
             order.Sort((a, b) =>
             {
-                string na = ItemSortName(Items[a]);
-                string nb = ItemSortName(Items[b]);
-                int c = string.Compare(na, nb, System.StringComparison.OrdinalIgnoreCase);
+                int c = SortEngine.Compare(recipes[a], recipes[b]);
                 if (c != 0)
                     return c;
-                return a.CompareTo(b);
+                // Same recipe: best quality first, then stable.
+                c = Items[b].m_quality.CompareTo(Items[a].m_quality);
+                return c != 0 ? c : a.CompareTo(b);
             });
 
             var newRecipes = new List<Recipe>(recipes.Count);
@@ -181,19 +242,7 @@ namespace WorkbenchesPlus
                 recipes.Add(newRecipes[i]);
                 Items.Add(newItems[i]);
             }
-        }
-
-        private static string ItemSortName(ItemDrop.ItemData item)
-        {
-            try
-            {
-                if (item?.m_shared != null)
-                    return item.m_shared.m_name ?? "";
-            }
-            catch
-            {
-            }
-            return "";
+            SnapshotRecipes(recipes);
         }
 
         public static Recipe FindRecipe(ItemDrop.ItemData item, CraftingStation station)
@@ -307,7 +356,7 @@ namespace WorkbenchesPlus
                 if (IsIdolOrUpgraderResource(req))
                     continue;
 
-                int amount = CraftMaterialAmount(req, quality);
+                int amount = ScaleRefund(CraftMaterialAmount(req, quality));
                 if (amount <= 0)
                     continue;
 
@@ -330,6 +379,21 @@ namespace WorkbenchesPlus
                 list.Add(new KeyValuePair<ItemDrop, int>(drop, kv.Value));
             }
             return list;
+        }
+
+        /// <summary>Applies DismantleRefundPercent to one refund line.</summary>
+        private static int ScaleRefund(int amount)
+        {
+            ModConfig cfg = Plugin.Settings;
+            if (cfg == null || amount <= 0)
+                return amount;
+
+            float factor = Mathf.Clamp(cfg.DismantleRefundPercent.Value, 0, 100) / 100f;
+            if (factor <= 0f)
+                return 0;
+
+            // Any refund the config allows gives at least one piece.
+            return Mathf.Max(1, Mathf.FloorToInt(amount * factor));
         }
 
         /// <summary>
@@ -399,15 +463,44 @@ namespace WorkbenchesPlus
             return total;
         }
 
+        private static readonly FieldInfo SelectedRecipeField =
+            AccessTools.Field(typeof(InventoryGui), "m_selectedRecipe");
+        private static readonly FieldInfo AvailableRecipesField =
+            AccessTools.Field(typeof(InventoryGui), "m_availableRecipes");
+
+        /// <summary>
+        /// The inventory item a GUI row stands for. The game sorts the rows again after we built them,
+        /// so a row index says nothing about our own lists: the row itself (RecipeDataPair.ItemData,
+        /// which we filled in AddRecipeToList) is the only reliable link.
+        /// </summary>
+        private static ItemDrop.ItemData ItemOfPair(object pair)
+        {
+            if (pair == null)
+                return null;
+            PropertyInfo p = pair.GetType().GetProperty("ItemData");
+            return p != null ? p.GetValue(pair, null) as ItemDrop.ItemData : null;
+        }
+
+        private static ItemDrop.ItemData ItemOfRow(InventoryGui gui, int index)
+        {
+            if (gui == null || AvailableRecipesField == null || index < 0)
+                return null;
+            System.Collections.IList rows = AvailableRecipesField.GetValue(gui) as System.Collections.IList;
+            if (rows == null || index >= rows.Count)
+                return null;
+            return ItemOfPair(rows[index]);
+        }
+
         public static void BindSelectedItem(InventoryGui gui, int index)
         {
             if (!Active || gui == null)
                 return;
-            if (index < 0 || index >= Items.Count)
+            ItemDrop.ItemData item = ItemOfRow(gui, index);
+            if (item == null)
                 return;
 
             if (CraftUpgradeItemField != null)
-                CraftUpgradeItemField.SetValue(gui, Items[index]);
+                CraftUpgradeItemField.SetValue(gui, item);
         }
 
         public static ItemDrop.ItemData ResolveSelectedItem(InventoryGui gui)
@@ -415,28 +508,15 @@ namespace WorkbenchesPlus
             if (gui == null)
                 return null;
 
-            int idx = -1;
-            try
+            // The selected row of the list as the game shows it right now.
+            if (SelectedRecipeField != null)
             {
-                MethodInfo getIdx = AccessTools.Method(typeof(InventoryGui), "GetSelectedRecipeIndex",
-                    new[] { typeof(bool) });
-                if (getIdx != null)
-                    idx = (int)getIdx.Invoke(gui, new object[] { false });
-            }
-            catch
-            {
-                idx = -1;
+                ItemDrop.ItemData fromRow = ItemOfPair(SelectedRecipeField.GetValue(gui));
+                if (fromRow != null)
+                    return fromRow;
             }
 
-            // Prefer the paired inventory item from our dismantle list.
-            if (idx >= 0 && idx < Items.Count && Items[idx] != null)
-                return Items[idx];
-
-            ItemDrop.ItemData item = null;
-            if (CraftUpgradeItemField != null)
-                item = CraftUpgradeItemField.GetValue(gui) as ItemDrop.ItemData;
-
-            return item;
+            return CraftUpgradeItemField != null ? CraftUpgradeItemField.GetValue(gui) as ItemDrop.ItemData : null;
         }
 
         /// <summary>Start vanilla-style craft timer for dismantle (no material consume).</summary>
@@ -465,7 +545,7 @@ namespace WorkbenchesPlus
                 return false;
 
             List<KeyValuePair<ItemDrop, int>> refund = BuildRefund(recipe, item.m_quality);
-            if (!CanFitRefund(player.GetInventory(), refund))
+            if (!CanFitRefund(player.GetInventory(), refund, FreedSlots(item, recipe)))
             {
                 player.Message(MessageHud.MessageType.Center, "$inventory_full");
                 return true;
@@ -533,19 +613,19 @@ namespace WorkbenchesPlus
             ItemDrop.ItemData item = ResolveLiveInventoryItem(inv, snapshot);
             if (item == null || !CanDismantle(player, station, item))
             {
-                player.Message(MessageHud.MessageType.Center, "Dismantle failed");
+                player.Message(MessageHud.MessageType.Center, Loc.T("dismantle_failed"));
                 return true;
             }
 
             int remove = Mathf.Max(1, recipe.m_amount);
             if (item.m_stack < remove)
             {
-                player.Message(MessageHud.MessageType.Center, "Dismantle failed");
+                player.Message(MessageHud.MessageType.Center, Loc.T("dismantle_failed"));
                 return true;
             }
 
             List<KeyValuePair<ItemDrop, int>> refund = BuildRefund(recipe, quality);
-            if (!CanFitRefund(inv, refund))
+            if (!CanFitRefund(inv, refund, FreedSlots(item, recipe)))
             {
                 player.Message(MessageHud.MessageType.Center, "$inventory_full");
                 return true;
@@ -562,17 +642,17 @@ namespace WorkbenchesPlus
             if (!removed)
                 removed = TryForceRemove(inv, snapshot, remove);
 
-            // Confirm inventory actually changed for this target.
+            // Confirm the inventory changed for THIS item (by reference). Looking it up by name again would
+            // find a second, identical copy and wrongly report "not removed" - item gone, no refund.
             if (removed)
             {
-                ItemDrop.ItemData still = ResolveLiveInventoryItem(inv, snapshot);
-                if (still != null && still.m_stack >= stackBefore)
-                    removed = false;
+                bool wholeStack = remove >= stackBefore;
+                removed = wholeStack ? !inv.ContainsItem(item) : item.m_stack < stackBefore;
             }
 
             if (!removed)
             {
-                player.Message(MessageHud.MessageType.Center, "Dismantle failed");
+                player.Message(MessageHud.MessageType.Center, Loc.T("dismantle_failed"));
                 if (Plugin.Log != null)
                     Plugin.Log.LogWarning("Dismantle: could not remove selected item from inventory");
                 return true;
@@ -619,7 +699,7 @@ namespace WorkbenchesPlus
             }
 
             PlayCraftEffects(gui, player, station, done: true);
-            player.Message(MessageHud.MessageType.Center, "Dismantled");
+            player.Message(MessageHud.MessageType.Center, Loc.T("dismantled"));
             return true;
         }
 
@@ -751,23 +831,39 @@ namespace WorkbenchesPlus
             }
         }
 
-        private static bool CanFitRefund(Inventory inv, List<KeyValuePair<ItemDrop, int>> refund)
+        /// <summary>
+        /// Exact fit check (vanilla Inventory.CanAddItem math, summed over all refund lines):
+        /// free space in partial stacks first, the rest needs whole empty slots.
+        /// <paramref name="freedSlots"/> = slots the dismantled item releases.
+        /// </summary>
+        private static bool CanFitRefund(Inventory inv, List<KeyValuePair<ItemDrop, int>> refund, int freedSlots)
         {
             if (inv == null || refund == null || refund.Count == 0)
                 return true;
-            if (inv.GetEmptySlots() > 0)
-                return true;
 
+            int slotsNeeded = 0;
             for (int i = 0; i < refund.Count; i++)
             {
                 ItemDrop drop = refund[i].Key;
+                int amount = refund[i].Value;
+                if (amount <= 0)
+                    continue;
                 if (drop?.m_itemData?.m_shared == null)
                     return false;
+
                 ItemDrop.ItemData.SharedData shared = drop.m_itemData.m_shared;
-                if (inv.CountItems(shared.m_name) <= 0 && shared.m_maxStackSize <= 1)
-                    return false;
+                int max = Mathf.Max(1, shared.m_maxStackSize);
+                int rest = amount - inv.FindFreeStackSpace(shared.m_name, Game.m_worldLevel);
+                if (rest > 0)
+                    slotsNeeded += (rest + max - 1) / max;
             }
-            return true;
+
+            return slotsNeeded <= inv.GetEmptySlots() + freedSlots;
+        }
+
+        private static int FreedSlots(ItemDrop.ItemData item, Recipe recipe)
+        {
+            return item != null && recipe != null && Mathf.Max(1, recipe.m_amount) >= item.m_stack ? 1 : 0;
         }
     }
 }

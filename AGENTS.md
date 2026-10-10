@@ -6,7 +6,7 @@ Workbenches+ is a **working client-side crafting-UI mod**. Stability beats new a
 
 > Do **not** invent a second solution when one already exists.
 
-This is **not** a replacement for vanilla range math. Extra metres wrap **one** API: `CraftingStation.GetStationBuildRange` (`BuildRangeBonus`). Do not add a second calculator.
+This is **not** a replacement for vanilla range math. The optional absolute build-range override wraps **one** API: `CraftingStation.GetStationBuildRange` (`BuildRangeBonus`). Do not add a second calculator.
 
 ---
 
@@ -29,11 +29,11 @@ Search before adding logic.
 | Need | Existing owner |
 |---|---|
 | Keep recipes for the current station | `StationFilter` |
-| Sort recipe list + GUI rows | `RecipeSort` |
-| Category chips | `CategoryBar` + `RecipeCategories` |
+| Sort recipe list + GUI rows | `RecipeSort` -> `SortEngine.Info` -> `RecipeOrder.Compare` |
+| Category chips | `CategoryBar` + `CraftCategories` (chip order) |
 | Craftable / partial buckets | `Craftability` |
-| Material section labels | `MaterialNameBucket` + `MaterialSectionHeaders` |
-| Armor / weapon / tool / shield groups | `*SetDetector` + `MaterialProgression` |
+| Material section labels | `RecipeInfo.Group` (from `RecipeClassifier`) + `MaterialSectionHeaders` |
+| Armor / weapon / tool / shield groups, tiers | `RecipeClassifier` + `MaterialCatalog` (see `docs/Sorting.md`) |
 | Multi-craft arrows | `CraftMultiplierBar` (writes vanilla `m_multiCraftAmount`) |
 | Dismantle | `DismantleMode` + `DismantlePatches` + `DismantleTab` |
 | Reflect vanilla GUI fields | `AccessToolsExt` (in `UI/CategoryBar.cs`) |
@@ -61,7 +61,7 @@ Use Valheim APIs already in use:
 - `Inventory` add/remove for dismantle
 - Vanilla Craft/Upgrade tab `interactable` convention
 
-Do not reimplement vanilla `GetStationBuildRange` math (`m_rangeBuild` + extensions). Extra metres go through `BuildRangeBonus.AddExtra` only.
+Do not reimplement vanilla `GetStationBuildRange` math (`m_rangeBuild` + extensions). The override goes through `BuildRangeBonus.AddExtra` only (despite the name it returns an absolute value).
 
 ---
 
@@ -125,7 +125,7 @@ At least:
 - Multi-craft arrows still drive vanilla `HaveRequirements(..., amount)`
 - Config master switch `EnableMod` still disables extra UI
 
-This mod does **not** own workbench range, building radius, or repair radius. Do not “regression-test range” as if WB+ changed it - vanilla still owns those.
+This mod only owns the optional per-station build-range override (Shift+E); it does **not** own base workbench range or repair radius. Do not “regression-test range” as if WB+ changed it - vanilla still owns those.
 
 ---
 

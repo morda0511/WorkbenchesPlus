@@ -59,8 +59,6 @@ namespace WorkbenchesPlus
             {
                 if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
                     return;
-                if (!Plugin.Settings.RefreshOnStationChange.Value)
-                    return;
 
                 Player player = Player.m_localPlayer;
                 CraftingStation station = player != null ? player.GetCurrentCraftingStation() : null;
@@ -70,6 +68,7 @@ namespace WorkbenchesPlus
                 _lastStation = station;
                 if (CategoryBar.Active != CraftCategory.All)
                     CategoryBar.SetActive(CraftCategory.All, rebuild: false);
+                SearchBox.Reset();
             }
             catch (System.Exception ex)
             {
@@ -87,6 +86,7 @@ namespace WorkbenchesPlus
 
                 CategoryBar.Show(__instance);
                 CraftMultiplierBar.Show(__instance);
+                SearchBox.Show(__instance);
                 DismantleTab.Show(__instance);
                 InventoryRefreshHook.EnsureBound();
             }
@@ -117,7 +117,7 @@ namespace WorkbenchesPlus
 
         public static void EnsureBound()
         {
-            if (Plugin.Settings == null || !Plugin.Settings.RefreshOnInventoryChange.Value)
+            if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
                 return;
 
             Player player = Player.m_localPlayer;
@@ -171,9 +171,6 @@ namespace WorkbenchesPlus
                 return;
             if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
                 return;
-            if (!Plugin.Settings.RefreshOnInventoryChange.Value)
-                return;
-
             InventoryGui gui = InventoryGui.instance;
             if (gui == null || !gui.isActiveAndEnabled)
                 return;
@@ -232,6 +229,7 @@ namespace WorkbenchesPlus
             try
             {
                 InventoryRefreshHook.Tick(__instance);
+                SearchBox.Tick();
                 if (DismantleMode.Active)
                     DismantleTab.RefreshVisuals(__instance);
             }
@@ -252,6 +250,7 @@ namespace WorkbenchesPlus
                 CategoryBar.Show(__instance);
                 CraftMultiplierBar.Show(__instance);
                 DismantleTab.Show(__instance);
+                SearchBox.Show(__instance);
             }
             catch (System.Exception ex)
             {
@@ -295,6 +294,7 @@ namespace WorkbenchesPlus
             try
             {
                 InventoryRefreshHook.Detach();
+                SearchBox.Hide(true);
                 CategoryBar.Hide();
                 CraftMultiplierBar.Hide();
                 DismantleTab.Hide();

@@ -162,14 +162,11 @@ namespace WorkbenchesPlus
                 _amount = 1;
         }
 
+        private const int MaxMultiplier = 99;
+
         private static int MaxAllowed()
         {
-            int m = 99;
-            if (Plugin.Settings != null && Plugin.Settings.MaxCraftMultiplier != null)
-                m = Plugin.Settings.MaxCraftMultiplier.Value;
-            if (m < 1)
-                m = 1;
-            return m;
+            return MaxMultiplier;
         }
 
         private static void RefreshArrowStates(InventoryGui gui)
@@ -415,6 +412,7 @@ namespace WorkbenchesPlus
                 + (1f - craft.pivot.x) * craftW;
 
             rt.anchoredPosition = new Vector2(craftRight + GapRightOfCraft, craftCenterY);
+            LayoutOverrides.Nudge(rt, "multiplier");
             _root.transform.SetAsLastSibling();
         }
 

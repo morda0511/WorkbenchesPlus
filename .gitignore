@@ -8,3 +8,9 @@ _stations.json
 _workbench_recipes.json
 _workbench_label_map.txt
 *.zip
+
+# developer tools, scans and dumps (not part of the mod source)
+tools/
+Assets/Icons/source/
+*.tsv
+*_dump.json

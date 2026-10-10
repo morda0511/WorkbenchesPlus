@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "categories.dx": 0,
+  "categories.dy": 0,
+  "search.dx": 0,
+  "search.dy": 1,
+  "search.h": 30,
+  "multiplier.dx": 0,
+  "multiplier.dy": 0,
+  "subpanel.dx": 6,
+  "subpanel.dy": 93,
+  "dismantle.dx": 0,
+  "dismantle.dy": 0,
+  "vanilla": [],
+  "vanillaSub": [
+    {
+      "path": "Inventory_screen/root/Crafting/RecipeList",
+      "l": 0,
+      "t": 68,
+      "r": 0,
+      "b": 0,
+      "sub": 1
+    }
+  ],
+  "sub.detached": 1,
+  "sub.count": 12,
+  "sub.columns": 6,
+  "sub.cell": 26,
+  "sub.gap": 2
+}

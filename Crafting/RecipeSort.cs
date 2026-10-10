@@ -6,22 +6,19 @@ using UnityEngine;
 
 namespace WorkbenchesPlus
 {
+    /// <summary>
+    /// Glue between the vanilla recipe list and the sorter: station filter, category chip filter,
+    /// then one ordering (RecipeOrder) for the list and for the rows on screen.
+    /// </summary>
     internal static class RecipeSort
     {
         private struct Entry
         {
             public Recipe Recipe;
+            public RecipeInfo Info;
+            public int CraftTier;
+            public bool Fav;
             public int OriginalIndex;
-            public int AmmoFirst;
-            public int CraftBucket;
-            public int MaterialPct;
-            public int StationLevel;
-            public int CategoryOrder;
-            public string SetKey;
-            public string MaterialBucket;
-            public int PieceOrder;
-            public float FoodStatValue;
-            public string SortName;
         }
 
         private static readonly FieldInfo AvailableRecipesField =
@@ -48,7 +45,15 @@ namespace WorkbenchesPlus
             // (and keep DismantleMode.Items indices aligned with recipes).
             if (!DismantleMode.Active)
             {
+                // Fail open: a station filter that empties the whole list is wrong (modded stations),
+                // so keep the vanilla list in that case and say so once.
+                var vanillaList = new List<Recipe>(recipes);
                 StationFilter.Apply(recipes);
+                if (recipes.Count == 0 && vanillaList.Count > 0)
+                {
+                    recipes.AddRange(vanillaList);
+                    WarnOnce(player != null ? player.GetCurrentCraftingStation() : null);
+                }
 
                 if (Plugin.Settings.EnableCategories.Value)
                     CategoryBar.SyncAvailable(recipes);
@@ -60,7 +65,25 @@ namespace WorkbenchesPlus
                 {
                     for (int i = recipes.Count - 1; i >= 0; i--)
                     {
-                        if (!RecipeCategories.Matches(recipes[i], CategoryBar.Active))
+                        if (SortEngine.CategoryOf(recipes[i]) != CategoryBar.Active)
+                            recipes.RemoveAt(i);
+                    }
+
+                    if (CategoryBar.HasSubFilter)
+                    {
+                        for (int i = recipes.Count - 1; i >= 0; i--)
+                        {
+                            if (!CategoryBar.PassesSubFilter(SortEngine.Info(recipes[i])))
+                                recipes.RemoveAt(i);
+                        }
+                    }
+                }
+
+                if (SearchBox.Query.Length > 0)
+                {
+                    for (int i = recipes.Count - 1; i >= 0; i--)
+                    {
+                        if (!SearchBox.Matches(SortEngine.Info(recipes[i])))
                             recipes.RemoveAt(i);
                     }
                 }
@@ -90,17 +113,8 @@ namespace WorkbenchesPlus
                 MaterialSectionHeaders.Clear();
                 return;
             }
-            Player player = Player.m_localPlayer;
-            if (player != null && StationFilter.IsUpgrader(player.GetCurrentCraftingStation()))
-            {
-                MaterialSectionHeaders.Clear();
-                return;
-            }
-            if (Plugin.Settings.IsVanillaOrder())
-            {
-                MaterialSectionHeaders.Clear();
-                return;
-            }
+            // The Forge of Potential is sorted too: its recipe list stays untouched (vanilla expands it from
+            // the inventory), only the finished rows are reordered here.
             // Dismantle list is already paired+sorted; do not reshuffle rows.
             if (DismantleMode.Active)
             {
@@ -118,34 +132,17 @@ namespace WorkbenchesPlus
             }
 
             var recipes = new List<Recipe>(pairs.Count);
-            var pairByRecipe = new List<object>(pairs.Count);
             var elements = new List<GameObject>(pairs.Count);
             for (int i = 0; i < pairs.Count; i++)
             {
-                object pair = pairs[i];
-                Recipe r = ReadRecipe(pair);
-                recipes.Add(r);
-                pairByRecipe.Add(pair);
-                elements.Add(ReadElement(pair));
+                recipes.Add(ReadRecipe(pairs[i]));
+                elements.Add(ReadElement(pairs[i]));
             }
 
-            var order = new List<int>(recipes.Count);
-            for (int i = 0; i < recipes.Count; i++)
-                order.Add(i);
-
-            var entries = BuildEntries(recipes);
-            bool groupArmor = Plugin.Settings.EnableArmorSetGrouping.Value
-                || Plugin.Settings.EnableWeaponSetGrouping.Value
-                || Plugin.Settings.EnableToolSetGrouping.Value
-                || Plugin.Settings.EnableShieldSetGrouping.Value;
-            bool craftBuckets = Plugin.Settings.UseCraftBuckets();
-            bool alphabetical = Plugin.Settings.IsAlphabetical();
-            bool progression = Plugin.Settings.IsProgression();
-            bool categoryThen = Plugin.Settings.IsCategoryThenCraftable();
-
-            order.Sort((ia, ib) => Compare(
-                entries[ia], entries[ib],
-                groupArmor, craftBuckets, alphabetical, progression, categoryThen));
+            Player current = Player.m_localPlayer;
+            bool upgrader = current != null && StationFilter.IsUpgrader(current.GetCurrentCraftingStation());
+            List<Entry> entries = BuildEntries(recipes, upgrader ? pairs : null);
+            entries.Sort(CompareEntries);
 
             float space = 30f;
             if (RecipeListSpaceField != null)
@@ -155,16 +152,19 @@ namespace WorkbenchesPlus
                     space = f;
             }
 
+            var oldPairs = new List<object>(pairs.Count);
+            for (int i = 0; i < pairs.Count; i++)
+                oldPairs.Add(pairs[i]);
+
             pairs.Clear();
-            var orderedRecipes = new List<Recipe>(order.Count);
-            var orderedElements = new List<GameObject>(order.Count);
+            var orderedRecipes = new List<Recipe>(entries.Count);
+            var orderedElements = new List<GameObject>(entries.Count);
             Transform listParent = null;
 
-            for (int i = 0; i < order.Count; i++)
+            for (int i = 0; i < entries.Count; i++)
             {
-                int idx = order[i];
-                object pair = pairByRecipe[idx];
-                pairs.Add(pair);
+                int idx = entries[i].OriginalIndex;
+                pairs.Add(oldPairs[idx]);
                 orderedRecipes.Add(recipes[idx]);
                 GameObject go = elements[idx];
                 orderedElements.Add(go);
@@ -172,345 +172,116 @@ namespace WorkbenchesPlus
                     listParent = go.transform.parent;
             }
 
-            MaterialSectionHeaders.Apply(
-                listParent,
-                orderedRecipes,
-                orderedElements,
-                space);
+            var slots = new List<HeaderSlot>(entries.Count);
+            for (int i = 0; i < entries.Count; i++)
+                slots.Add(SlotFor(entries[i]));
 
-            if (Plugin.Settings.DebugLogging.Value)
+            MaterialSectionHeaders.Apply(listParent, slots, orderedElements, space);
+
+            if (!upgrader)
             {
-                Plugin.Log.LogInfo("ReorderGui rows=" + pairs.Count + " space=" + space);
-                int n = System.Math.Min(12, order.Count);
-                for (int i = 0; i < n; i++)
+                for (int i = 0; i < orderedRecipes.Count; i++)
                 {
-                    Entry e = entries[order[i]];
-                    Plugin.Log.LogInfo("  #" + i + " set=" + (e.SetKey ?? "-")
-                        + " bucket=" + (e.MaterialBucket ?? "-")
-                        + " ammo=" + e.AmmoFirst
-                        + " tier=" + MaterialNameBucket.Tier(e.MaterialBucket)
-                        + " bucketCraft=" + e.CraftBucket
-                        + " piece=" + e.PieceOrder
-                        + " name=" + e.SortName);
+                    FavoriteRowClick.Attach(orderedElements[i], orderedRecipes[i]);
+                    AppendFoodValue(orderedElements[i], SortEngine.Info(orderedRecipes[i]));
                 }
             }
+        }
+
+        private static readonly HashSet<string> Warned = new HashSet<string>();
+
+        private static void WarnOnce(CraftingStation station)
+        {
+            string key = station != null ? station.name + "|" + station.m_name : "none";
+            if (Warned.Add(key) && Plugin.Log != null)
+                Plugin.Log.LogWarning("Station filter would hide every recipe at '" + key + "' - showing the vanilla list.");
         }
 
         private static void SortInPlace(List<Recipe> recipes)
         {
             if (recipes.Count <= 1)
                 return;
-            if (Plugin.Settings.IsVanillaOrder())
-                return;
 
-            var entries = BuildEntries(recipes);
-            bool groupArmor = Plugin.Settings.EnableArmorSetGrouping.Value
-                || Plugin.Settings.EnableWeaponSetGrouping.Value
-                || Plugin.Settings.EnableToolSetGrouping.Value
-                || Plugin.Settings.EnableShieldSetGrouping.Value;
-            bool craftBuckets = Plugin.Settings.UseCraftBuckets();
-            bool alphabetical = Plugin.Settings.IsAlphabetical();
-            bool progression = Plugin.Settings.IsProgression();
-            bool categoryThen = Plugin.Settings.IsCategoryThenCraftable();
-
-            entries.Sort((a, b) => Compare(
-                a, b, groupArmor, craftBuckets, alphabetical, progression, categoryThen));
+            List<Entry> entries = BuildEntries(recipes, null);
+            entries.Sort(CompareEntries);
 
             recipes.Clear();
             for (int i = 0; i < entries.Count; i++)
                 recipes.Add(entries[i].Recipe);
         }
 
-        private static List<Entry> BuildEntries(List<Recipe> recipes)
+        /// <param name="upgradePairs">Forge of Potential rows: craftability comes from the row itself (it is per inventory item).</param>
+        private static List<Entry> BuildEntries(List<Recipe> recipes, IList upgradePairs)
         {
             Player player = Player.m_localPlayer;
-            string[] armorOrder = ArmorSetDetector.ParseOrder(Plugin.Settings.ArmorPieceOrder.Value);
-            string[] weaponOrder = WeaponSetDetector.ParseOrder(Plugin.Settings.WeaponPieceOrder.Value);
-            string[] toolOrder = ToolSetDetector.ParseOrder(Plugin.Settings.ToolPieceOrder.Value);
-            string[] shieldOrder = ShieldSetDetector.ParseOrder(Plugin.Settings.ShieldPieceOrder.Value);
-            bool groupArmor = Plugin.Settings.EnableArmorSetGrouping.Value;
-            bool groupWeapons = Plugin.Settings.EnableWeaponSetGrouping.Value;
-            bool groupTools = Plugin.Settings.EnableToolSetGrouping.Value;
-            bool groupShields = Plugin.Settings.EnableShieldSetGrouping.Value;
-            bool groupModdedArmor = Plugin.Settings.GroupModdedArmorSets.Value;
-            bool groupModdedWeapons = Plugin.Settings.GroupModdedWeaponSets.Value;
-            bool craftBuckets = Plugin.Settings.UseCraftBuckets();
-            bool categoryThen = Plugin.Settings.IsCategoryThenCraftable();
-
             var entries = new List<Entry>(recipes.Count);
             for (int i = 0; i < recipes.Count; i++)
             {
                 Recipe r = recipes[i];
-                string setKey = null;
-                int pieceOrder = 0;
-
-                if (groupArmor)
-                {
-                    setKey = ArmorSetDetector.SetKey(r, groupModdedArmor);
-                    if (!string.IsNullOrEmpty(setKey))
-                        pieceOrder = ArmorSetDetector.PieceOrder(r, armorOrder);
-                }
-
-                if (string.IsNullOrEmpty(setKey) && groupWeapons)
-                {
-                    // All arrows/bolts share one group - do not split by Wood/Iron/Bronze.
-                    if (WeaponSetDetector.IsAmmo(r))
-                    {
-                        setKey = "WeaponAmmo";
-                        pieceOrder = WeaponSetDetector.PieceOrder(r, weaponOrder);
-                    }
-                    else
-                    {
-                        setKey = WeaponSetDetector.SetKey(r, groupModdedWeapons);
-                        if (!string.IsNullOrEmpty(setKey))
-                            pieceOrder = WeaponSetDetector.PieceOrder(r, weaponOrder);
-                    }
-                }
-
-                if (string.IsNullOrEmpty(setKey) && groupTools)
-                {
-                    setKey = ToolSetDetector.SetKey(r, groupModdedWeapons);
-                    if (!string.IsNullOrEmpty(setKey))
-                        pieceOrder = ToolSetDetector.PieceOrder(r, toolOrder);
-                }
-
-                if (string.IsNullOrEmpty(setKey) && groupShields)
-                {
-                    setKey = ShieldSetDetector.SetKey(r, groupModdedWeapons);
-                    if (!string.IsNullOrEmpty(setKey))
-                        pieceOrder = ShieldSetDetector.PieceOrder(r, shieldOrder);
-                }
-
                 entries.Add(new Entry
                 {
                     Recipe = r,
-                    OriginalIndex = i,
-                    AmmoFirst = WeaponSetDetector.IsAmmo(r) ? 0 : 1,
-                    CraftBucket = craftBuckets ? Craftability.ScoreBucket(player, r) : 0,
-                    MaterialPct = craftBuckets ? Craftability.MaterialPercent(player, r) : 0,
-                    StationLevel = r != null ? r.m_minStationLevel : 0,
-                    CategoryOrder = categoryThen ? (int)RecipeCategories.Classify(r) : 0,
-                    SetKey = setKey,
-                    MaterialBucket = MaterialNameBucket.Resolve(r),
-                    PieceOrder = pieceOrder,
-                    FoodStatValue = RecipeCategories.FoodStatSortValue(r),
-                    SortName = DisplayName(r)
+                    Info = SortEngine.Info(r),
+                    CraftTier = upgradePairs != null
+                        ? (RowCanCraft(upgradePairs[i]) ? 0 : 1)
+                        : Craftability.SectionTier(Craftability.ScoreBucket(player, r)),
+                    Fav = upgradePairs == null && !DismantleMode.Active && FavoritesStore.Is(r),
+                    OriginalIndex = i
                 });
             }
             return entries;
         }
 
-        private static int Compare(
-            Entry a,
-            Entry b,
-            bool groupArmor,
-            bool craftBuckets,
-            bool alphabetical,
-            bool progression,
-            bool categoryThen)
+        private static int CompareEntries(Entry a, Entry b)
         {
-            if (categoryThen)
-            {
-                int c = a.CategoryOrder.CompareTo(b.CategoryOrder);
-                if (c != 0)
-                    return c;
-            }
-
-            // Craftable blocks first (with their own Bronze/Iron/… labels at the top),
-            // then uncraftable blocks (same labels again further down).
-            bool useBuckets = Plugin.Settings != null
-                && (Plugin.Settings.EnableMaterialSectionHeaders.Value
-                    || Plugin.Settings.EnableWeaponSetGrouping.Value
-                    || Plugin.Settings.EnableArmorSetGrouping.Value
-                    || Plugin.Settings.EnableToolSetGrouping.Value
-                    || Plugin.Settings.EnableShieldSetGrouping.Value);
-
-            if (useBuckets)
-            {
-                int bucketCmp = CompareNameBuckets(a, b, craftBuckets);
-                if (bucketCmp != 0)
-                    return bucketCmp;
-            }
+            int c;
+            if (a.Fav != b.Fav)
+                return a.Fav ? -1 : 1;
+            if (a.Info == null || b.Info == null)
+                c = a.Info == null ? (b.Info == null ? 0 : 1) : -1;
             else
-            {
-                if (craftBuckets)
-                {
-                    int c = a.CraftBucket.CompareTo(b.CraftBucket);
-                    if (c != 0)
-                        return c;
-                }
-
-                if (groupArmor)
-                {
-                    int ammo = a.AmmoFirst.CompareTo(b.AmmoFirst);
-                    if (ammo != 0)
-                        return ammo;
-                }
-
-                bool aSet = groupArmor && !string.IsNullOrEmpty(a.SetKey);
-                bool bSet = groupArmor && !string.IsNullOrEmpty(b.SetKey);
-
-                if (aSet && bSet)
-                {
-                    int mat = CompareMaterialThenPiece(a, b);
-                    if (mat != 0)
-                        return mat;
-                }
-                else if (groupArmor && (aSet || bSet))
-                {
-                    if (aSet)
-                        return -1;
-                    return 1;
-                }
-            }
-
-            if (craftBuckets)
-            {
-                int c = b.MaterialPct.CompareTo(a.MaterialPct);
-                if (c != 0)
-                    return c;
-            }
-
-            if (progression)
-            {
-                int c = a.StationLevel.CompareTo(b.StationLevel);
-                if (c != 0)
-                    return c;
-            }
-
-            int nameCmp = string.Compare(a.SortName, b.SortName, System.StringComparison.OrdinalIgnoreCase);
-            if (nameCmp != 0)
-                return nameCmp;
-
-            return a.OriginalIndex.CompareTo(b.OriginalIndex);
+                c = RecipeOrder.Compare(a.Info, a.CraftTier, b.Info, b.CraftTier);
+            return c != 0 ? c : a.OriginalIndex.CompareTo(b.OriginalIndex);
         }
 
-        private static int CompareNameBuckets(Entry a, Entry b, bool craftBuckets)
+        private static HeaderSlot SlotFor(Entry e)
         {
-            // 1) Craftable tier first → craftable Bronze appears at the top of All.
-            if (craftBuckets)
+            if (e.Fav)
+                return new HeaderSlot { Key = "FAV", Label = Loc.T("favorites"), Color = MaterialSectionHeaders.HeaderGold };
+            if (e.Info == null || string.IsNullOrEmpty(e.Info.Group))
+                return new HeaderSlot();
+            return new HeaderSlot
             {
-                int c = a.CraftBucket.CompareTo(b.CraftBucket);
-                if (c != 0)
-                    return c;
-            }
-
-            bool aHas = !string.IsNullOrEmpty(a.MaterialBucket);
-            bool bHas = !string.IsNullOrEmpty(b.MaterialBucket);
-            if (aHas != bHas)
-                return aHas ? -1 : 1;
-            if (!aHas)
-                return 0;
-
-            // 2) Within the same craft tier: material sections (Bronze, Iron, …).
-            if (!string.Equals(a.MaterialBucket, b.MaterialBucket, System.StringComparison.OrdinalIgnoreCase))
-            {
-                int ta = MaterialNameBucket.Tier(a.MaterialBucket);
-                int tb = MaterialNameBucket.Tier(b.MaterialBucket);
-                int tierCmp = ta.CompareTo(tb);
-                if (tierCmp != 0)
-                    return tierCmp;
-                return string.Compare(a.MaterialBucket, b.MaterialBucket, System.StringComparison.OrdinalIgnoreCase);
-            }
-
-            // 3) Same craft + same material: Tools → sort by inner material tier
-            //    (Antler / Bronze / Iron / Black metal), not craftable order inside the label.
-            if (a.MaterialBucket.Equals("Tools", System.StringComparison.OrdinalIgnoreCase))
-            {
-                int ta = MaterialNameBucket.NestedToolTier(a.Recipe);
-                int tb = MaterialNameBucket.NestedToolTier(b.Recipe);
-                int tierCmp = ta.CompareTo(tb);
-                if (tierCmp != 0)
-                    return tierCmp;
-            }
-
-            // Food stations: within Health / Stamina / Eitr, highest bar first (100 → 10).
-            if (IsFoodStatBucket(a.MaterialBucket))
-            {
-                int foodCmp = b.FoodStatValue.CompareTo(a.FoodStatValue);
-                if (foodCmp != 0)
-                    return foodCmp;
-            }
-
-            int kind = MaterialKind(a.SetKey).CompareTo(MaterialKind(b.SetKey));
-            if (kind != 0)
-                return kind;
-
-            int po = a.PieceOrder.CompareTo(b.PieceOrder);
-            if (po != 0)
-                return po;
-
-            return string.Compare(a.SortName, b.SortName, System.StringComparison.OrdinalIgnoreCase);
+                Key = e.Info.GroupBand + "|" + e.Info.GroupOrder + "|" + e.Info.Group + "|" + e.CraftTier,
+                Label = e.Info.Group + GroupColors.BiomeSuffix(e.Info),
+                Color = MaterialSectionHeaders.HeaderGold
+            };
         }
 
-        private static bool IsFoodStatBucket(string bucket)
+        /// <summary>Food rows: the strongest bar after the name, in the bar colour (Health red ...).</summary>
+        private static void AppendFoodValue(GameObject row, RecipeInfo info)
         {
-            if (string.IsNullOrEmpty(bucket))
+            if (row == null || info == null || info.Value <= 0f)
+                return;
+            if (info.Category != CraftCategory.Health && info.Category != CraftCategory.Stamina
+                && info.Category != CraftCategory.Eitr && info.Category != CraftCategory.Prep)
+                return;
+
+            Transform nameT = row.transform.Find("name");
+            TMPro.TMP_Text label = nameT != null ? nameT.GetComponent<TMPro.TMP_Text>() : null;
+            if (label == null || label.text.EndsWith("</color>"))
+                return;
+
+            label.text += "  <color=#" + GroupColors.Hex(GroupColors.ForBar(info.Facts)) + ">"
+                + Mathf.RoundToInt(info.Value) + "</color>";
+        }
+
+        private static bool RowCanCraft(object pair)
+        {
+            if (pair == null)
                 return false;
-            return bucket.Equals("Health", System.StringComparison.OrdinalIgnoreCase)
-                || bucket.Equals("Stamina", System.StringComparison.OrdinalIgnoreCase)
-                || bucket.Equals("Eitr", System.StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static int CompareMaterialThenPiece(Entry a, Entry b)
-        {
-            // Compare by material name (BlackMetal), not Weapon/Armor/Tool/Shield prefix,
-            // so All does not split the same tier into multiple blocks.
-            string matA = MaterialProgression.MaterialName(a.SetKey);
-            string matB = MaterialProgression.MaterialName(b.SetKey);
-
-            if (string.Equals(matA, matB, System.StringComparison.OrdinalIgnoreCase))
-            {
-                int kind = MaterialKind(a.SetKey).CompareTo(MaterialKind(b.SetKey));
-                if (kind != 0)
-                    return kind;
-
-                int po = a.PieceOrder.CompareTo(b.PieceOrder);
-                if (po != 0)
-                    return po;
-                return string.Compare(a.SortName, b.SortName, System.StringComparison.OrdinalIgnoreCase);
-            }
-
-            int ta = MaterialProgression.Tier(a.SetKey);
-            int tb = MaterialProgression.Tier(b.SetKey);
-            int tierCmp = ta.CompareTo(tb);
-            if (tierCmp != 0)
-                return tierCmp;
-
-            return string.Compare(matA, matB, System.StringComparison.OrdinalIgnoreCase);
-        }
-
-        /// <summary>Stable order inside one material: ammo, weapons, shields, tools, armor.</summary>
-        private static int MaterialKind(string setKey)
-        {
-            if (string.IsNullOrEmpty(setKey))
-                return 50;
-            if (setKey.Equals("WeaponAmmo", System.StringComparison.OrdinalIgnoreCase))
-                return 0;
-            if (setKey.StartsWith("Weapon", System.StringComparison.OrdinalIgnoreCase))
-                return 1;
-            if (setKey.StartsWith("Shield", System.StringComparison.OrdinalIgnoreCase))
-                return 2;
-            if (setKey.StartsWith("Tool", System.StringComparison.OrdinalIgnoreCase))
-                return 3;
-            if (setKey.StartsWith("Armor", System.StringComparison.OrdinalIgnoreCase)
-                || setKey.StartsWith("Cape", System.StringComparison.OrdinalIgnoreCase)
-                || setKey.StartsWith("Helmet", System.StringComparison.OrdinalIgnoreCase))
-                return 4;
-            return 40;
-        }
-
-        private static string DisplayName(Recipe recipe)
-        {
-            try
-            {
-                if (recipe?.m_item?.m_itemData?.m_shared != null)
-                    return recipe.m_item.m_itemData.m_shared.m_name ?? "";
-            }
-            catch
-            {
-            }
-            return recipe?.m_item != null ? recipe.m_item.name : "";
+            PropertyInfo p = AccessTools.Property(pair.GetType(), "CanCraft");
+            return p != null && p.GetValue(pair, null) is bool b && b;
         }
 
         private static PropertyInfo _recipeProp;
