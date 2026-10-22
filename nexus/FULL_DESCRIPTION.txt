@@ -13,8 +13,7 @@ Does not change recipes or crafting logic.
 
 [b]Sorting (every station)[/b]
 [list]
-[*]Recipes you can craft now sit at the top, with their own headers.
-[*]Below that: headers by material and biome (Wood, Bronze, Iron, Silver, Black Metal, Flametal, ...), in progression order.
+[*]Headers by material and biome (Wood, Bronze, Iron, Silver, Black Metal, Flametal, ...), in progression order.
 [*]Armor sets stay together: chest, helmet, legs, cape. Weapons of one material stay together, ordered by weapon type.
 [*]Variants (Blood, Lightning, Frost/Fire, ...) sit directly behind the weapon they are made from. Deep North casts sit behind the item they cast.
 [*]Food: Health, Stamina and Eitr headers, strongest food first. Feasts and fishing bait follow the biomes.

@@ -2,7 +2,7 @@
 
 <br>
 
-**Craftable first. Sorted by material and biome. Found in a second.**
+**Sorted by material and biome. Found in a second.**
 
 Every station sorts its recipes the same way, with headers by material and biome, armor sets and weapon materials kept together. Category chips, a weapon filter, search, favorites, a Dismantle tab, build range and auto repair. Does not change recipes or crafting logic.
 
@@ -16,7 +16,7 @@ Every station sorts its recipes the same way, with headers by material and biome
 
 | ![Sorting](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-sorting-160.png) | ![Search](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-search-160.png) | ![Categories](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-categories-160.png) | ![Upgrade](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-upgrade-160.png) |
 |:---:|:---:|:---:|:---:|
-| **Sorting**<br>Craftable first, then material and biome | **Search & favorites**<br>Type a name, right-click to pin | **Categories**<br>Chips per station, weapon filter symbols | **Upgrade**<br>New value next to the current one |
+| **Sorting**<br>By material, biome and set | **Search & favorites**<br>Type a name, right-click to pin | **Categories**<br>Chips per station, weapon filter symbols | **Upgrade**<br>New value next to the current one |
 
 | ![Dismantle](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-dismantle-160.png) | ![Multiplier](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-multiplier-160.png) | ![Build range](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-range-160.png) | ![Auto repair](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-repair-160.png) |
 |:---:|:---:|:---:|:---:|
@@ -28,8 +28,7 @@ Every station sorts its recipes the same way, with headers by material and biome
 
 ## Sorting
 
-- Recipes you can craft now sit at the top, with their own headers.
-- Below that: headers by material and biome (Wood, Bronze, Iron, Silver, Black Metal, Flametal, ...), in progression order.
+- Headers by material and biome (Wood, Bronze, Iron, Silver, Black Metal, Flametal, ...), in progression order.
 - Armor sets stay together (chest, helmet, legs, cape). Weapons of one material stay together, ordered by weapon type.
 - Variants (Blood, Lightning, Frost/Fire, ...) sit directly behind the weapon they are made from. Deep North casts sit behind the item they cast.
 - Food: Health, Stamina and Eitr headers, strongest food first. Feasts and fishing bait follow the biomes.
