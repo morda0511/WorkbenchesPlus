@@ -1,99 +1,113 @@
-# Workbenches+
+![Workbenches+ - Crafting menus that stay readable](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/workbenches-plus-banner.png)
 
-**Crafting menus that stay readable.**  
-Sort and filter station recipes so craftable items rise first, categories sit under the repair button, and armor sets and weapon materials stay together in biome order. Dismantle station-crafted items back into their materials from a tab beside Craft / Upgrade. Does not change recipes or crafting logic.
+<br>
 
-**Client-side** · Valheim 1.0 · BepInExPack 5.4.2350+. Console players via crossplay cannot load the mod.
+**Craftable first. Sorted by material and biome. Found in a second.**
 
-**Bug reports:** https://github.com/morda0511/WorkbenchesPlus/issues
+Every station sorts its recipes the same way, with headers by material and biome, armor sets and weapon materials kept together. Category chips, a weapon filter, search, favorites, a Dismantle tab, build range and auto repair. Does not change recipes or crafting logic.
 
-**Discord:** https://discord.gg/aVKVVmyzj
+> **Client-side.** Valheim 1.0 · BepInExPack 5.4.2350+ · Console players via crossplay cannot load the mod.
 
----
+[Bug reports](https://github.com/morda0511/WorkbenchesPlus/issues) · [Discord](https://discord.gg/aVKVVmyzj)
 
-## Features
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/divider-norse.png)
 
-### Dismantle
+## At a glance
 
-- New tab beside Craft / Upgrade on workbenches.
-- Break station-crafted items back into their crafting materials.
+| ![Sorting](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-sorting-160.png) | ![Categories](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-categories-160.png) | ![Search](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-search-160.png) | ![Favorites](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-favorites-160.png) |
+|:---:|:---:|:---:|:---:|
+| **Sorting**<br>Craftable first, then material and biome | **Categories**<br>Chips per station, weapon filter symbols | **Search**<br>Type a name or a material | **Favorites**<br>Right-click, always on top |
 
-### Search and favorites
+| ![Dismantle](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-dismantle-160.png) | ![Multi-craft](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-multicraft-160.png) | ![Build range](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-buildrange-160.png) | ![Auto repair](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-repair-160.png) |
+|:---:|:---:|:---:|:---:|
+| **Dismantle**<br>Break gear back into its materials | **Multi-craft**<br>Arrows beside Craft, up to 99 | **Build range**<br>Shift+E: 50 to 200 m per station | **Auto repair**<br>Worn gear fixed one by one |
 
-- Search field at the right end of the tab row: type to filter the list by recipe name or header (Iron, Fenrir, ...). Esc or Enter leaves the field.
-- **Right-click** a recipe to add or remove it from your favorites. Favorites form a "Favorites" block at the top of every list. They are saved in `BepInEx/config/WorkbenchesPlus_favorites.txt`.
+**Works with:** Path of Valheiman · crafting stations from other mods (Warfare, ...)
 
-### Biome tags and food values
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/divider-norse.png)
 
-- Gear headers carry the biome of their material, for example `Iron [Swamp]`, `Black Metal [Plains]`.
-- Food shows its strongest bar after the name: Health red, Stamina yellow, Eitr blue.
+## Sorting
 
-### Material labels
+- Recipes you can craft now sit at the top, with their own headers.
+- Below that: headers by material and biome (Wood, Bronze, Iron, Silver, Black Metal, Flametal, ...), in progression order.
+- Armor sets stay together (chest, helmet, legs, cape). Weapons of one material stay together, ordered by weapon type.
+- Variants (Blood, Lightning, Frost/Fire, ...) sit directly behind the weapon they are made from. Deep North casts sit behind the item they cast.
+- Food: Health, Stamina and Eitr headers, strongest food first. Feasts and fishing bait follow the biomes.
+- Gear headers carry their biome, for example `Iron [Swamp]`. Food shows its strongest bar after the name: Health red, Stamina yellow, Eitr blue.
+- The Forge of Potential list is sorted too. Nothing to set up: one order for everything.
 
-- Materials are sorted by labels.
+## Categories and search
 
-### Category chips
+- **Chips** under the repair button: Weapons, Armor, Shields, Tools, Ammo, Magic, Health, Stamina, Eitr, Feasts, Prep, Fish, Bait, Potions, Cast, Materials, Trinkets, Clothes, Misc. Empty chips are hidden. **All** shows the current station only.
+- **Weapons** opens a box of symbols: 1-Hand, 2-Hand, Knives, Swords, Clubs, Axes, Spears, Polearms, Bows, Crossbows, Fists, Bombs. One symbol at a time; bows and crossbows only count under their own symbol.
+- **Search** at the right end of the tab row: filter by recipe name or header (type "iron" for the Iron block).
+- **Favorites:** right-click a recipe. Favorites form a block at the top of every list.
 
-- Chips under the repair button, **per station** (cauldron: Health / Stamina / Eitr; prep table: Feasts / Prep / Bait; galdr: Magic / Cast).
-- Empty chips stay hidden. Fishing baits and feasts are separate from Weapons.
-- Click **Weapons** and a small filter panel opens under it: a grid of symbols (1-Hand, 2-Hand, Knives, Swords, Clubs, Axes, Spears, Polearms, Bows, Crossbows, Fists, Bombs). Hover an icon for its name. Hand and type combine (2-Hand + Axes). A weapon sits in several filters, a 1-handed axe is in 1-Hand and in Axes. Click a selected filter again, or Weapons, to clear.
-- **All** shows recipes for the current station only. The Forge of Potential (Schmiede / Werkbank des Potenzials) uses the vanilla upgrade list (no extra filters).
+## Crafting
 
-### Armor set grouping
+- **Upgrade tab** shows the current value next to the upgraded one, for example `Durability: 400 (now: 200)`.
+- **Multi-craft arrows** beside the Craft button set how many crafts to run (up to 99).
 
-- Helmet, chest, legs, and cape from the same set stay together.
-- Piece order is configurable.
+## Dismantle
 
-### Weapon material grouping
+- A tab beside Craft / Upgrade: break station-crafted items back into their materials.
+- Shows exactly which materials you get back before you dismantle. The refund percentage is configurable.
+- Food and potions are never listed. Not available at the Forge of Potential.
 
-- Weapons of the same material stay together (Iron with Iron, Black Metal with Black Metal).
-- Groups follow biome / material tier order (Copper, Bronze, Iron, …).
+## Build range and auto repair
 
-### Sort modes
+- Look at a station the hammer needs (workbench, forge, ...) and press **Shift+E** to cycle its build range: default, 50, 100, 150, 200 m. Saved on the station, not possible inside someone else's ward.
+- **Auto repair** (off by default): worn armor, weapons and tools are repaired one at a time while you stand in a matching station's build range, once they drop to `AutoRepairBelowPercent` (default 90 %). Needs roof and fire like normal repair.
 
-- `CraftableFirst`, `CategoryThenCraftable`, `Progression`, `Alphabetical`, `Vanilla`.
+## Path of Valheiman
 
-### Craft multiplier
+- While its Salvage / Disenchant tab or its category grid is open, Workbenches+ steps aside.
+- Hover a recipe row to see the full Path of Valheiman item tooltip (rarity, stat ranges, tags).
+- The search field sits behind its extra tab and never sticks out of the window.
+- Optional `HidePathOfValheimanSalvage`: only Dismantle at normal stations. Disenchant at the Rune Carver Table always stays.
 
-- Up / down arrows beside the Craft button set how many crafts to run.
-- Caps at `MaxCraftMultiplier` (default 99).
-
-### Build range
-
-- Look at a station that has a hammer/build radius (workbench, stonecutter, artisan table, …).
-- **Shift+E** (vanilla AltPlace + Use) sets build range: **default** (vanilla, about 20-36 m) → **50** → **100** → **150** → **200** → default.
-- Absolute metres when overridden, not added on top of vanilla. Saved on that station. Hover shows the current range.
-- Not allowed inside someone else's ward (`BuildRangeRequireAccess`). Highest value is `BuildRangeMaxMeters`.
-
----
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/divider-norse.png)
 
 ## Config
 
-**One file only** (no YAML):
-
-`BepInEx/config/com.morda.workbenchesplus.cfg`
+One file, `BepInEx/config/com.morda.workbenchesplus.cfg`:
 
 | Setting | Meaning |
-|---|---|
+|:---|:---|
 | `EnableMod` | Master switch |
 | `EnableCategories` | Category chips under the Repair button |
 | `ShowCraftabilityIndicators` | Green check on fully craftable rows (default off) |
 | `EnableCraftMultiplier` | Multi-craft arrows beside Craft |
-| `EnableUpgradeCompare` | Upgrade tab: current stat value next to the upgraded one |
+| `EnableUpgradeCompare` | Upgrade tab: current stat next to the upgraded one |
 | `EnableDismantle` | Dismantle tab beside Craft / Upgrade |
 | `DismantleRefundPercent` | Percent of materials returned (0-100, default 100) |
-| `EnableBuildRangeCycle` | Shift+E on a station the hammer needs: default, 50, 100, 150, 200 m. Not inside someone else's ward |
-| `BuildRangeMaxMeters` | Highest build range the cycle reaches (50-500, default 200) |
-| `EnableAutoRepair` | Auto-repair worn gear inside a matching station's build range, one item at a time (default off) |
-| `DebugLogging` | Extra logs |
+| `EnableBuildRangeCycle` | Shift+E build range cycle |
+| `BuildRangeMaxMeters` | Highest build range (50-500, default 200) |
+| `EnableAutoRepair` | Auto repair at stations (default off) |
+| `AutoRepairBelowPercent` | Auto repair at or below this durability (1-99, default 90) |
+| `HidePathOfValheimanSalvage` | Path of Valheiman only: hide its Salvage tab at normal stations (default off) |
+| `DebugLogging` | Writes a recipe dump for bug reports |
 
-Sorting has no settings: craftable recipes first, then sections by material / category in progression order, armor sets and weapon materials kept together.
+**Servers:** the mod is client-side and works on any server. Dismantle, build range and auto repair are decided on your client; each can be switched off.
 
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/divider-norse.png)
 
----
+## More mods by Morda
+
+| Mod | What it does |
+|:---|:---|
+| **[StoreAndCraft](https://thunderstore.io/c/valheim/p/Morda/StoreAndCraft/)** | A base that works with you: auto-store, dump, craft and build from chests, storage displays, feed trough, F10 settings panel |
+| **[Morda's Gearhold](https://thunderstore.io/c/valheim/p/Morda/MordasGearhold/)** | Three switchable equipment sets, shared inventory, 8 hotkey quickslots, ammo slots, trinkets, a weightless coin slot, transmog looks, armour dyes and weapon glow |
+| **[Forager's Garden](https://thunderstore.io/c/valheim/p/Morda/ForagersGarden/)** | Berry bushes, wild herbs and mushrooms with the Cultivator, plus Ice, Royal Jelly and Crystal beehives |
+| **[Valheim Mannequins](https://thunderstore.io/c/valheim/p/Morda/ValheimMannequins/)** | Player-shaped mannequins: dress them with real gear, pose and name them, keep several gear sets |
+| **[ServerRates](https://thunderstore.io/c/valheim/p/Morda/ServerRates/)** | Server-side rates for dedicated servers (PC and console), live apply, presets. Joining players need no install |
+
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/divider-norse.png)
 
 ## Install
 
-1. Install [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/).
-2. Drop `WorkbenchesPlus.dll` into `BepInEx/plugins/WorkbenchesPlus/` (or install via Thunderstore / r2modman).
-3. Launch once to generate the config file.
+1. Install [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/)
+2. Put `WorkbenchesPlus.dll` in `BepInEx/plugins/WorkbenchesPlus/` (or use Thunderstore / r2modman)
+3. Launch once to create the config file
+
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/workbenches-plus-footer.png)

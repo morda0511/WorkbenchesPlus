@@ -14,6 +14,8 @@ namespace WorkbenchesPlus
         public ConfigEntry<bool> EnableBuildRangeCycle { get; }
         public ConfigEntry<int> BuildRangeMaxMeters { get; }
         public ConfigEntry<bool> EnableAutoRepair { get; }
+        public ConfigEntry<int> AutoRepairBelowPercent { get; }
+        public ConfigEntry<bool> HidePathOfValheimanSalvage { get; }
         public ConfigEntry<bool> DebugLogging { get; }
 
         public ModConfig(ConfigFile file)
@@ -46,6 +48,15 @@ namespace WorkbenchesPlus
 
             EnableAutoRepair = file.Bind("Auto repair", "EnableAutoRepair", false,
                 "Repair worn armor, weapons and tools automatically while you stand inside the build range of a matching station (needs roof and fire like normal repair). One item every 1.5 s.");
+            AutoRepairBelowPercent = file.Bind("Auto repair", "AutoRepairBelowPercent", 90,
+                new ConfigDescription(
+                    "Auto repair an item once its durability is at or below this percent.",
+                    new AcceptableValueRange<int>(1, 99)));
+
+            HidePathOfValheimanSalvage = file.Bind("Compatibility", "HidePathOfValheimanSalvage", false,
+                "Path of Valheiman only: hide its Salvage tab at normal stations, so only the Dismantle tab is there. "
+                + "You lose Path of Valheiman's salvage bonuses and the Azurite dust from magic items. "
+                + "The Disenchant tab at the Rune Carver Table always stays.");
 
             DebugLogging = file.Bind("Debug", "DebugLogging", false,
                 "Writes a recipe dump (BepInEx/WorkbenchesPlus_recipes.tsv).");

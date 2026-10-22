@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.1.0
+
+### NEW FEATURES
+- Path of Valheiman support: Workbenches+ steps aside while its Salvage / Disenchant tab or its category grid is open
+- Path of Valheiman: hovering a recipe row shows its full item tooltip (rarity, stat ranges, tags)
+- Option HidePathOfValheimanSalvage: hides its Salvage tab at normal stations (Disenchant at the Rune Carver Table stays)
+- Auto repair: new AutoRepairBelowPercent (default 90)
+
+### UI IMPROVEMENTS
+- Search field moves behind extra tabs from other mods and never sticks out of the window
+
+### FIX
+- Rune Carver Table: the Dismantle tab no longer hides under Disenchant until Disenchant was clicked once
+
 ## 1.0.16
 
 ### UI IMPROVEMENTS

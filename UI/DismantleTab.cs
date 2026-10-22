@@ -22,8 +22,9 @@ namespace WorkbenchesPlus
 
         public static void Show(InventoryGui gui)
         {
+            // Path of Valheiman's category grid shows the craft tab as a grid; our dismantle rows would land in it.
             if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value
-                || !Plugin.Settings.EnableDismantle.Value)
+                || !Plugin.Settings.EnableDismantle.Value || PathOfValheimanCompat.CategoryGridOn)
             {
                 Hide();
                 return;

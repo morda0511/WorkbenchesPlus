@@ -19,6 +19,7 @@ namespace WorkbenchesPlus
         private static bool _silent;
         private static bool _pending;
         private static float _applyAt;
+        private static float _nextPlace;
 
         public static string Query { get; private set; } = "";
 
@@ -29,7 +30,7 @@ namespace WorkbenchesPlus
 
         public static void Show(InventoryGui gui)
         {
-            if (gui == null || !Allowed())
+            if (gui == null || !Allowed() || PathOfValheimanCompat.OwnsList(gui))
             {
                 Hide(false);
                 return;
@@ -65,6 +66,13 @@ namespace WorkbenchesPlus
 
         public static void Tick()
         {
+            // Other mods add tab buttons later (Path of Valheiman's Salvage tab): keep the field behind them.
+            if (_root != null && _root.activeSelf && Time.unscaledTime >= _nextPlace && InventoryGui.instance != null)
+            {
+                _nextPlace = Time.unscaledTime + 0.5f;
+                Place(InventoryGui.instance);
+            }
+
             if (!_pending || Time.unscaledTime < _applyAt || AccessToolsExt.IsRebuilding)
                 return;
 
@@ -181,6 +189,30 @@ namespace WorkbenchesPlus
             rt.offsetMax = new Vector2(-x, -y);
         }
 
+        /// <summary>Right edge of the furthest tab button in the tab row (our Dismantle, other mods' tabs).</summary>
+        private static float RightmostTab(RectTransform upgrade, RectTransform self)
+        {
+            float best = float.MinValue;
+            Transform row = upgrade.parent;
+            if (row == null)
+                return best;
+            for (int i = 0; i < row.childCount; i++)
+            {
+                Transform c = row.GetChild(i);
+                if (c == self || !c.gameObject.activeSelf || c.GetComponent<Button>() == null)
+                    continue;
+                // Hidden by our compatibility option (it may flash on for a frame while the panel rebuilds).
+                if (c.name == PathOfValheimanCompat.SalvageTabName && PathOfValheimanCompat.SalvageHiddenHere())
+                    continue;
+                RectTransform r = c as RectTransform;
+                if (r == null || Mathf.Abs(r.anchoredPosition.y - upgrade.anchoredPosition.y) > 2f)
+                    continue;
+                float w = r.rect.width > 8f ? r.rect.width : Mathf.Abs(r.sizeDelta.x);
+                best = Mathf.Max(best, r.anchoredPosition.x + (1f - r.pivot.x) * w);
+            }
+            return best;
+        }
+
         /// <summary>Right of the Dismantle tab, same row, same height as the tabs.</summary>
         private static void Place(InventoryGui gui)
         {
@@ -208,6 +240,7 @@ namespace WorkbenchesPlus
                 step = w + 4f;
 
             float dismantleRight = u.anchoredPosition.x + step + (1f - u.pivot.x) * w;
+            dismantleRight = Mathf.Max(dismantleRight, RightmostTab(u, rt));
             rt.anchorMin = u.anchorMin;
             rt.anchorMax = u.anchorMax;
             rt.pivot = new Vector2(0f, u.pivot.y);
@@ -216,6 +249,28 @@ namespace WorkbenchesPlus
             rt.sizeDelta = new Vector2(sw > 20f ? sw : w * 1.7f, sh > 8f ? sh : h);
             rt.anchoredPosition = new Vector2(dismantleRight + 8f, u.anchoredPosition.y);
             LayoutOverrides.Nudge(rt, "search");
+            FitInsidePanel(gui, rt);
+        }
+
+        /// <summary>
+        /// More tabs in the row (Path of Valheiman's Salvage tab ...) push the field to the right:
+        /// shrink it so it never sticks out past the right edge of the crafting panel (Craft button edge).
+        /// </summary>
+        private static void FitInsidePanel(InventoryGui gui, RectTransform rt)
+        {
+            RectTransform limit = AccessToolsExt.CraftButton(gui);
+            if (limit == null)
+                return;
+            var a = new Vector3[4];
+            var b = new Vector3[4];
+            limit.GetWorldCorners(a);
+            rt.GetWorldCorners(b);
+            float excess = b[2].x - a[2].x;
+            float scale = rt.lossyScale.x;
+            if (excess <= 0.5f || scale <= 1e-5f)
+                return;
+            float width = Mathf.Max(48f, rt.rect.width - excess / scale);
+            rt.sizeDelta = new Vector2(width, rt.sizeDelta.y);
         }
     }
 

@@ -61,6 +61,13 @@ namespace WorkbenchesPlus
                 DismantleAddRecipeToListPatch.ResetInject();
                 if (!DismantleMode.Active)
                     return;
+                // Path of Valheiman's Salvage tab took over: our rows must not be injected into its list.
+                if (PathOfValheimanCompat.Salvaging)
+                {
+                    DismantleMode.SetActive(false);
+                    DismantleTab.RefreshVisuals(InventoryGui.instance);
+                    return;
+                }
                 if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value
                     || !Plugin.Settings.EnableDismantle.Value)
                     return;

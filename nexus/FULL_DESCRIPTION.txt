@@ -70,6 +70,15 @@ Does not change recipes or crafting logic.
 [b]Auto repair (off by default)[/b]
 [list]
 [*]Repairs worn armor, weapons and tools one item at a time while you stand inside the build range of a matching station. Needs roof and fire like the normal repair.
+[*]Repairs an item once its durability is at or below AutoRepairBelowPercent (default 90 %).
+[/list]
+
+[b]Path of Valheiman[/b]
+[list]
+[*]While its Salvage / Disenchant tab or its category grid is open, Workbenches+ steps aside (no chips, search, sorting or headers in that list).
+[*]Hover a recipe row to see the full Path of Valheiman item tooltip (rarity, stat ranges, tags), without switching to its crafting grid.
+[*]The search field sits behind its extra tab and never sticks out of the window.
+[*]Optional [b]HidePathOfValheimanSalvage[/b]: hides its Salvage tab at normal stations, so only Dismantle is there. Disenchant at the Rune Carver Table always stays.
 [/list]
 
 [b]Note for servers[/b]
@@ -94,6 +103,8 @@ One file only (no YAML):
 [*][b]EnableBuildRangeCycle[/b]: Shift+E build range cycle
 [*][b]BuildRangeMaxMeters[/b]: Highest build range (50-500, default 200)
 [*][b]EnableAutoRepair[/b]: Auto repair (default off)
+[*][b]AutoRepairBelowPercent[/b]: Auto repair at or below this durability (1-99, default 90)
+[*][b]HidePathOfValheimanSalvage[/b]: Path of Valheiman only: hide its Salvage tab at normal stations (default off)
 [*][b]DebugLogging[/b]: Writes a recipe dump for bug reports
 [/list]
 

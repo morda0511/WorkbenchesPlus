@@ -95,7 +95,8 @@ namespace WorkbenchesPlus
 
         public static void Show(InventoryGui gui)
         {
-            if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value || !Plugin.Settings.EnableCategories.Value)
+            if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value || !Plugin.Settings.EnableCategories.Value
+                || PathOfValheimanCompat.OwnsList(gui))
             {
                 Hide();
                 return;

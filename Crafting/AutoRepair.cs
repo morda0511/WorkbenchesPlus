@@ -32,7 +32,6 @@ namespace WorkbenchesPlus
         private static readonly List<ItemDrop.ItemData> Worn = new List<ItemDrop.ItemData>();
         private const float ScanSeconds = 5f;      // idle check
         private const float RepairSeconds = 1.5f;   // between two repairs
-        private const float BelowPercent = 0.9f;    // repair at or below this durability
 
         private static float _nextTick;
 
@@ -62,7 +61,7 @@ namespace WorkbenchesPlus
             if (Worn.Count == 0)
                 return;
 
-            float limit = BelowPercent;
+            float limit = Mathf.Clamp(cfg.AutoRepairBelowPercent.Value, 1, 99) / 100f;   // repair at or below this durability
             for (int i = 0; i < Worn.Count; i++)
             {
                 ItemDrop.ItemData item = Worn[i];

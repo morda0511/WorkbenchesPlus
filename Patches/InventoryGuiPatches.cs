@@ -8,13 +8,15 @@ namespace WorkbenchesPlus
     [HarmonyPriority(Priority.Last)]
     internal static class UpdateRecipeListSortPatch
     {
-        private static void Prefix(List<Recipe> recipes)
+        private static void Prefix(InventoryGui __instance, List<Recipe> recipes)
         {
             try
             {
                 if (recipes == null)
                     return;
                 if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
+                    return;
+                if (PathOfValheimanCompat.OwnsList(__instance))
                     return;
 
                 RecipeSort.Apply(recipes);
@@ -33,8 +35,15 @@ namespace WorkbenchesPlus
                 if (Plugin.Settings == null || !Plugin.Settings.EnableMod.Value)
                     return;
 
+                if (PathOfValheimanCompat.OwnsList(__instance))
+                {
+                    MaterialSectionHeaders.Clear();
+                    return;
+                }
+
                 RecipeSort.ReorderGui(__instance);
                 CraftabilityIndicators.Apply(__instance);
+                PathOfValheimanTooltips.Apply(__instance);
             }
             catch (System.Exception ex)
             {
@@ -86,8 +95,10 @@ namespace WorkbenchesPlus
 
                 CategoryBar.Show(__instance);
                 CraftMultiplierBar.Show(__instance);
-                SearchBox.Show(__instance);
                 DismantleTab.Show(__instance);
+                PathOfValheimanCompat.PlaceSalvageTab(__instance);   // its tab behind our Dismantle tab
+                PathOfValheimanCompat.EnforceSalvageHidden(__instance);
+                SearchBox.Show(__instance);                          // after all tabs: sits behind the last one
                 InventoryRefreshHook.EnsureBound();
             }
             catch (System.Exception ex)
@@ -229,6 +240,7 @@ namespace WorkbenchesPlus
             try
             {
                 InventoryRefreshHook.Tick(__instance);
+                PathOfValheimanCompat.EnforceSalvageHidden(__instance);
                 SearchBox.Tick();
                 if (DismantleMode.Active)
                     DismantleTab.RefreshVisuals(__instance);
