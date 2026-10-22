@@ -14,13 +14,13 @@ Every station sorts its recipes the same way, with headers by material and biome
 
 ## At a glance
 
-| ![Sorting](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-sorting-160.png) | ![Categories](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-categories-160.png) | ![Search](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-search-160.png) | ![Favorites](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-favorites-160.png) |
+| ![Sorting](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-sorting-160.png) | ![Search](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-search-160.png) | ![Categories](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-categories-160.png) | ![Upgrade](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-upgrade-160.png) |
 |:---:|:---:|:---:|:---:|
-| **Sorting**<br>Craftable first, then material and biome | **Categories**<br>Chips per station, weapon filter symbols | **Search**<br>Type a name or a material | **Favorites**<br>Right-click, always on top |
+| **Sorting**<br>Craftable first, then material and biome | **Search & favorites**<br>Type a name, right-click to pin | **Categories**<br>Chips per station, weapon filter symbols | **Upgrade**<br>New value next to the current one |
 
-| ![Dismantle](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-dismantle-160.png) | ![Multi-craft](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-multicraft-160.png) | ![Build range](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-buildrange-160.png) | ![Auto repair](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-repair-160.png) |
+| ![Dismantle](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-dismantle-160.png) | ![Multiplier](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-multiplier-160.png) | ![Build range](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-range-160.png) | ![Auto repair](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-repair-160.png) |
 |:---:|:---:|:---:|:---:|
-| **Dismantle**<br>Break gear back into its materials | **Multi-craft**<br>Arrows beside Craft, up to 99 | **Build range**<br>Shift+E: 50 to 200 m per station | **Auto repair**<br>Worn gear fixed one by one |
+| **Dismantle**<br>Break gear back into its materials | **Multiplier**<br>Arrows beside Craft, up to 99 | **Build range**<br>Shift+E: 50 to 200 m per station | **Auto repair**<br>Worn gear fixed one by one |
 
 **Works with:** Path of Valheiman · crafting stations from other mods (Warfare, ...)
 
