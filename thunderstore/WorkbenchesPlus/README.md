@@ -39,13 +39,14 @@ Every station sorts its recipes the same way, with headers by material and biome
 
 - **Chips** under the repair button: Weapons, Armor, Shields, Tools, Ammo, Magic, Health, Stamina, Eitr, Feasts, Prep, Fish, Bait, Potions, Cast, Materials, Trinkets, Clothes, Misc. Empty chips are hidden. **All** shows the current station only.
 - **Weapons** opens a box of symbols: 1-Hand, 2-Hand, Knives, Swords, Clubs, Axes, Spears, Polearms, Bows, Crossbows, Fists, Bombs. One symbol at a time; bows and crossbows only count under their own symbol.
+- **Gamepad:** right stick up / down picks the chip, left / right steps through the Weapons symbols.
 - **Search** at the right end of the tab row: filter by recipe name or header (type "iron" for the Iron block).
 - **Favorites:** right-click a recipe. Favorites form a block at the top of every list.
 
 ## Crafting
 
 - **Upgrade tab** shows the current value next to the upgraded one, for example `Durability: 400 (now: 200)`.
-- **Multi-craft arrows** beside the Craft button set how many crafts to run (up to 99).
+- **Multi-craft arrows** beside the Craft button set how many crafts to run (up to 99). Gamepad: D-pad left / right, hold to repeat.
 
 ## Dismantle
 

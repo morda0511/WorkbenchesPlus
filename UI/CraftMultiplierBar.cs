@@ -28,6 +28,7 @@ namespace WorkbenchesPlus
             AccessTools.Field(typeof(InventoryGui), "m_craftUpgradeItem");
 
         private static GameObject _root;
+        private static GameObject _hint;
         private static Button _up;
         private static Button _down;
         private static RectTransform _craftRt;
@@ -435,6 +436,40 @@ namespace WorkbenchesPlus
                 if (pads[i].m_hint != null)
                     pads[i].m_hint.SetActive(false);
                 Object.Destroy(pads[i]);
+            }
+        }
+
+        /// <summary>Gamepad: D-pad right / left presses the up / down arrow; hold to repeat.</summary>
+        public static void UpdateGamepad(InventoryGui gui)
+        {
+            if (_root == null || !_root.activeInHierarchy)
+                return;
+
+            // One D-pad left/right badge right of the arrow stack, centered on it (the arrows are rotated, their
+            // cloned hints would be too): a 24 px badge plus a 4 px gap. The root stretches with the Craft
+            // button (its anchors), the arrows sit at its center, sizeDelta.x is their width. Hidden while
+            // neither arrow can move.
+            bool live = (_up != null && _up.interactable) || (_down != null && _down.interactable);
+            if (live && GamepadInput.HintsShown(gui))
+                GamepadInput.ShowHint(ref _hint, gui, _root.transform, new Vector2(0.5f, 0.5f),
+                    new Vector2(((RectTransform)_root.transform).sizeDelta.x * 0.5f + 16f, 0f),
+                    "hint.multiplier", "dpad_leftright");
+            else
+                GamepadInput.HideHint(_hint);
+
+            if (!GamepadInput.CraftingFocused(gui))
+                return;
+
+            // OnSubmit = a click: does nothing while the arrow is not interactable (amount at its limit).
+            if (ZInput.GetButtonDown("JoyDPadRight"))
+            {
+                if (_up != null)
+                    _up.OnSubmit(null);
+            }
+            else if (ZInput.GetButtonDown("JoyDPadLeft"))
+            {
+                if (_down != null)
+                    _down.OnSubmit(null);
             }
         }
 

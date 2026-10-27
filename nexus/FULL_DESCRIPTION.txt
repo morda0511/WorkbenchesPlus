@@ -40,6 +40,7 @@ Does not change recipes or crafting logic.
 [*]Click [b]Weapons[/b] and a filter box opens with symbols: 1-Hand, 2-Hand, Knives, Swords, Clubs, Axes, Spears, Polearms, Bows, Crossbows, Fists, Bombs. One symbol at a time.
 [*]Bows and crossbows only count under their own symbol.
 [*][b]All[/b] shows recipes for the current station only.
+[*]Gamepad: right stick up / down picks the chip, left / right steps through the Weapons symbols.
 [/list]
 
 [b]Upgrade tab[/b]
@@ -59,6 +60,7 @@ Does not change recipes or crafting logic.
 [b]Craft multiplier[/b]
 [list]
 [*]Up / down arrows beside the Craft button set how many crafts to run (up to 99).
+[*]Gamepad: D-pad left / right, hold to repeat.
 [/list]
 
 [b]Build range[/b]

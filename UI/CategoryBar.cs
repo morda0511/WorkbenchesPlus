@@ -62,6 +62,8 @@ namespace WorkbenchesPlus
         }
 
         private static GameObject _root;
+        private static GameObject _catHint;
+        private static GameObject _subHint;
         private static float _chipWidth = DefaultChipWidth;
         private static string _builtProfileKey;
         private static readonly List<Button> Buttons = new List<Button>();
@@ -198,6 +200,9 @@ namespace WorkbenchesPlus
             // Unity overloaded == : destroyed objects compare as null.
             if (_root != null)
                 Object.Destroy(_root);
+            // A detached filter panel (layout file) is not under _root.
+            if (_subHint != null)
+                Object.Destroy(_subHint);
             ClearUiLists();
         }
 
@@ -234,6 +239,115 @@ namespace WorkbenchesPlus
             RefreshHighlights();
             if (rebuild)
                 AccessToolsExt.RebuildCraftingPanel();
+        }
+
+        /// <summary>
+        /// Gamepad: right stick up/down steps through the shown category chips (the column is vertical),
+        /// left/right through the filter symbols of the selected category, then back to none. Each step
+        /// presses the chip or symbol, same as a click.
+        /// </summary>
+        public static void UpdateGamepad(InventoryGui gui)
+        {
+            if (!EnsureUiAlive() || !_root.activeInHierarchy)
+                return;
+            UpdateHints(gui);
+            if (!GamepadInput.CraftingFocused(gui))
+                return;
+
+            if (ZInput.GetButtonDown("JoyRStickDown"))
+                StepCategory(1);
+            else if (ZInput.GetButtonDown("JoyRStickUp"))
+                StepCategory(-1);
+            else if (ZInput.GetButtonDown("JoyRStickRight"))
+                StepSub(1);
+            else if (ZInput.GetButtonDown("JoyRStickLeft"))
+                StepSub(-1);
+        }
+
+        /// <summary>
+        /// Glyphs like vanilla's button hints: right stick up/down just left of the selected chip, left/right
+        /// right after the last filter symbol (the start of the row is next to the Repair button and its own
+        /// hint); each a 24 px badge plus a small gap, centered on its row.
+        /// </summary>
+        private static void UpdateHints(InventoryGui gui)
+        {
+            bool show = GamepadInput.HintsShown(gui);
+
+            int at = Cats.IndexOf(Active);
+            int shown = 0;
+            for (int i = 0; i < Buttons.Count; i++)
+            {
+                if (MainShown(i))
+                    shown++;
+            }
+            Button chip = show && shown > 1 && at >= 0 && at < Buttons.Count ? Buttons[at] : null;
+            if (chip != null)
+                GamepadInput.ShowHint(ref _catHint, gui, chip.transform, new Vector2(0f, 0.5f), new Vector2(-14f, 0f),
+                    "hint.categories", "rstick_updown");
+            else
+                GamepadInput.HideHint(_catHint);
+
+            SubPanel panel;
+            if (show && Panels.TryGetValue(Active, out panel) && PanelShown(panel) && panel.Content != null)
+            {
+                // Symbols fill rows left to right from the content's top-left (ApplyVisibility). The badge's
+                // center: half its 24 px plus an 8 px gap after the last symbol.
+                int n = CountCells(panel);
+                int rows = (n + GridColumns - 1) / GridColumns;
+                int inLast = n - (rows - 1) * GridColumns;
+                float step = CellSize + CellGap;
+                var pos = new Vector2((inLast - 1) * step + CellSize + 20f, -(rows - 1) * step - CellSize * 0.5f);
+                GamepadInput.ShowHint(ref _subHint, gui, panel.Content, new Vector2(0f, 1f), pos,
+                    "hint.filters", "rstick_leftright");
+            }
+            else
+                GamepadInput.HideHint(_subHint);
+        }
+
+        private static void StepCategory(int dir)
+        {
+            int count = Cats.Count;
+            int at = Cats.IndexOf(Active);
+            for (int n = 1; n < count; n++)
+            {
+                int i = ((at + dir * n) % count + count) % count;
+                if (i < Buttons.Count && Buttons[i] != null && MainShown(i))
+                {
+                    Buttons[i].OnSubmit(null);
+                    return;
+                }
+            }
+        }
+
+        private static void StepSub(int dir)
+        {
+            SubPanel panel;
+            if (!Panels.TryGetValue(Active, out panel) || !PanelShown(panel))
+                return;
+
+            // Symbols in screen order (row by row), as ApplyVisibility places them.
+            var cells = new List<SubCell>();
+            int at = -1;
+            for (int i = 0; i < panel.Cells.Count; i++)
+            {
+                SubCell cell = panel.Cells[i];
+                if (cell.Go == null || !AvailableSubs.Contains(cell.Key))
+                    continue;
+                if (ActiveSubs.Contains(cell.Key))
+                    at = cells.Count;
+                cells.Add(cell);
+            }
+            if (cells.Count == 0)
+                return;
+
+            // Positions: -1 (no symbol), 0..n-1; wrap around.
+            int states = cells.Count + 1;
+            int next = ((at + 1 + dir) % states + states) % states - 1;
+            // Clicking the selected symbol clears it (OnSubClick), which is the "no symbol" step.
+            SubCell target = next >= 0 ? cells[next] : (at >= 0 ? cells[at] : null);
+            Button btn = target != null ? target.Go.GetComponent<Button>() : null;
+            if (btn != null)
+                btn.OnSubmit(null);
         }
 
         /// <summary>Main chip click: select the category, or clear its sub filters when it is already selected.</summary>

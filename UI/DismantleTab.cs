@@ -202,7 +202,7 @@ namespace WorkbenchesPlus
                 upgradePad.m_hint = null;
             }
 
-            bool hints = HintsShown(gui);
+            bool hints = GamepadInput.HintsShown(gui);
             bool atCraft = !on && craft != null && !craft.interactable;
             SetHintActive(_craftHint, hints && !atCraft);
             SetHintActive(_upgradeHint, false);
@@ -216,14 +216,6 @@ namespace WorkbenchesPlus
             string glyph = Localization.instance.Localize("$KEY_RTrigger");
             if (text.text != glyph)
                 text.text = glyph;
-        }
-
-        /// <summary>Where a vanilla UIGamePad shows its hint: crafting panel focused, gamepad in use, no mouse.</summary>
-        private static bool HintsShown(InventoryGui gui)
-        {
-            RectTransform crafting = AccessToolsExt.CraftingPanel(gui);
-            UIGroupHandler group = crafting != null ? crafting.GetComponent<UIGroupHandler>() : null;
-            return group != null && group.IsActive && ZInput.IsGamepadActive() && !ZInput.IsMouseActive();
         }
 
         private static void SetHintActive(GameObject hint, bool active)
