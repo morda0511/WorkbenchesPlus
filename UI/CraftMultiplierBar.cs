@@ -425,6 +425,17 @@ namespace WorkbenchesPlus
             var triggers = go.GetComponents<UnityEngine.EventSystems.EventTrigger>();
             for (int i = 0; i < triggers.Length; i++)
                 Object.Destroy(triggers[i]);
+
+            // The clone keeps the template's UIGamePad hotkey (quality arrows' left-stick). Vanilla lets only
+            // one UIGamePad per frame react to a press, so the clone would randomly steal it
+            // from the original. UIGamePad.Start (which hides the hint) never runs, so hide it here.
+            var pads = go.GetComponentsInChildren<UIGamePad>(true);
+            for (int i = 0; i < pads.Length; i++)
+            {
+                if (pads[i].m_hint != null)
+                    pads[i].m_hint.SetActive(false);
+                Object.Destroy(pads[i]);
+            }
         }
 
         private static void OnUpClicked()
