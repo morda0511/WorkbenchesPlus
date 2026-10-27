@@ -13,8 +13,15 @@ namespace WorkbenchesPlus
         private const string RootName = "WBP_TabDismantle";
         private static string TabLabel => Loc.T("dismantle");
 
+        private const string LeftTrigger = "JoyLTrigger";
+        private const string RightTrigger = "JoyRTrigger";
+
         private static GameObject _tab;
         private static Button _button;
+        private static UIGamePad _pad;
+        private static GameObject _hint;
+        private static GameObject _craftHint;
+        private static GameObject _upgradeHint;
         private static TMP_Text _label;
         private static Color _labelSelected = new Color(1f, 0.92f, 0.55f, 1f);
         private static Color _labelNormal = new Color(0.82f, 0.76f, 0.58f, 1f);
@@ -97,6 +104,7 @@ namespace WorkbenchesPlus
                 Object.Destroy(_tab);
             _tab = null;
             _button = null;
+            _pad = null;
             _label = null;
             _labelColorsReady = false;
             DismantleMode.SetActive(false);
@@ -137,6 +145,101 @@ namespace WorkbenchesPlus
             // Match Craft/Upgrade label colors to their real selection state.
             ApplyVanillaTabLabel(craft);
             ApplyVanillaTabLabel(upgrade);
+        }
+
+        /// <summary>
+        /// LT/RT step through the tabs left to right: Craft, Upgrade, Dismantle. Vanilla binds LT to Craft and
+        /// RT to Upgrade. Only one tab may own a trigger at a time (vanilla lets one UIGamePad react per press),
+        /// so: RT opens Dismantle only while Upgrade is open (Upgrade's own RT is idle then, the selected tab is
+        /// not interactable); while Dismantle is open, LT goes to Upgrade and Craft's LT is off.
+        /// </summary>
+        public static void UpdateGamepad(InventoryGui gui)
+        {
+            // Closed inventory: nothing to press; the first visible frame sets the state again.
+            if (!InventoryGui.IsVisible())
+                return;
+
+            Button craft = AccessToolsExt.TabCraft(gui);
+            Button upgrade = AccessToolsExt.TabUpgrade(gui);
+            UIGamePad craftPad = craft != null ? craft.GetComponent<UIGamePad>() : null;
+            UIGamePad upgradePad = upgrade != null ? upgrade.GetComponent<UIGamePad>() : null;
+            bool shown = _tab != null && _tab.activeInHierarchy;
+            bool on = shown && DismantleMode.Active;
+
+            SetPadLive(_pad, shown && !on && upgrade != null && !upgrade.interactable);
+            SetPadLive(craftPad, !on);
+            if (upgradePad != null)
+                upgradePad.m_zinputKey = on ? LeftTrigger : RightTrigger;
+            UpdateHints(gui, craft, craftPad, upgradePad, shown, on);
+        }
+
+        /// <summary>
+        /// With three tabs the trigger hints sit like a tab strip's: LT on the leftmost tab's corner (Craft's
+        /// own hint), RT on the rightmost (ours), each hidden at the end it cannot go past. Vanilla shows each
+        /// hint on the tab its trigger opens, which with three tabs would jump between tabs; so while our tab is
+        /// there, the vanilla hints come off their UIGamePads and we show them.
+        /// </summary>
+        private static void UpdateHints(InventoryGui gui, Button craft, UIGamePad craftPad, UIGamePad upgradePad,
+            bool shown, bool on)
+        {
+            if (!shown)
+            {
+                // Vanilla again: the UIGamePads drive their own hints.
+                if (craftPad != null && craftPad.m_hint == null)
+                    craftPad.m_hint = _craftHint;
+                if (upgradePad != null && upgradePad.m_hint == null)
+                    upgradePad.m_hint = _upgradeHint;
+                return;
+            }
+            if (craftPad != null && craftPad.m_hint != null)
+            {
+                _craftHint = craftPad.m_hint;
+                craftPad.m_hint = null;
+            }
+            if (upgradePad != null && upgradePad.m_hint != null)
+            {
+                _upgradeHint = upgradePad.m_hint;
+                upgradePad.m_hint = null;
+            }
+
+            bool hints = HintsShown(gui);
+            bool atCraft = !on && craft != null && !craft.interactable;
+            SetHintActive(_craftHint, hints && !atCraft);
+            SetHintActive(_upgradeHint, false);
+            SetHintActive(_hint, hints && !on);
+
+            // Our clone keeps whatever the Upgrade hint showed when it was cloned ("MISSING BUTTON DEF" if no
+            // gamepad was active then): vanilla re-localizes only the texts it localized itself.
+            TMP_Text text = _hint != null ? _hint.GetComponentInChildren<TMP_Text>(true) : null;
+            if (text == null || !hints || Localization.instance == null)
+                return;
+            string glyph = Localization.instance.Localize("$KEY_RTrigger");
+            if (text.text != glyph)
+                text.text = glyph;
+        }
+
+        /// <summary>Where a vanilla UIGamePad shows its hint: crafting panel focused, gamepad in use, no mouse.</summary>
+        private static bool HintsShown(InventoryGui gui)
+        {
+            RectTransform crafting = AccessToolsExt.CraftingPanel(gui);
+            UIGroupHandler group = crafting != null ? crafting.GetComponent<UIGroupHandler>() : null;
+            return group != null && group.IsActive && ZInput.IsGamepadActive() && !ZInput.IsMouseActive();
+        }
+
+        private static void SetHintActive(GameObject hint, bool active)
+        {
+            if (hint != null && hint.activeSelf != active)
+                hint.SetActive(active);
+        }
+
+        private static void SetPadLive(UIGamePad pad, bool live)
+        {
+            if (pad == null || pad.enabled == live)
+                return;
+            pad.enabled = live;
+            // A disabled UIGamePad no longer updates its hint.
+            if (!live && pad.m_hint != null)
+                pad.m_hint.SetActive(false);
         }
 
         private static void ApplyVanillaTabLabel(Button tab)
@@ -193,6 +296,14 @@ namespace WorkbenchesPlus
             _tab = Object.Instantiate(template.gameObject, parent, false);
             _tab.name = RootName;
             StripListeners(_tab);
+
+            // Own RT hotkey, live only on the Upgrade tab; its hint (the cloned "gamepad_hint") is shown by
+            // UpdateHints, not by the UIGamePad. See UpdateGamepad.
+            _pad = _tab.AddComponent<UIGamePad>();
+            _pad.m_zinputKey = RightTrigger;
+            _pad.enabled = false;
+            Transform hint = _tab.transform.Find("gamepad_hint");
+            _hint = hint != null ? hint.gameObject : null;
 
             _button = _tab.GetComponent<Button>();
             if (_button != null)

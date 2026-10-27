@@ -50,6 +50,7 @@ Every station sorts its recipes the same way, with headers by material and biome
 ## Dismantle
 
 - A tab beside Craft / Upgrade: break station-crafted items back into their materials.
+- **Gamepad:** LT / RT step through the tabs: Craft, Upgrade, Dismantle.
 - Shows exactly which materials you get back before you dismantle. The refund percentage is configurable.
 - Food and potions are never listed. Not available at the Forge of Potential.
 

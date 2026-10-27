@@ -53,6 +53,7 @@ Does not change recipes or crafting logic.
 [*]Shows exactly which materials you get back before you dismantle.
 [*]Food and potions are never listed. The refund percentage is configurable.
 [*]Not available at the Forge of Potential.
+[*]Gamepad: LT / RT step through the tabs: Craft, Upgrade, Dismantle.
 [/list]
 
 [b]Craft multiplier[/b]
