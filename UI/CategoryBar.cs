@@ -24,6 +24,10 @@ namespace WorkbenchesPlus
         public static CraftCategory Active { get; private set; } = CraftCategory.All;
 
         private const float DefaultChipWidth = 96f;
+        // Chips widen up to this for a language whose labels are longer (Russian "Выносливость").
+        private const float MaxChipWidth = 128f;
+        // The label's insets (6 + 6) plus the chip frame's border on both sides.
+        private const float LabelPadding = 24f;
         private const float ChipHeight = 26f;
         private const float ChipSpacing = 3f;
         private const float GapBelowRepair = 10f;
@@ -64,6 +68,11 @@ namespace WorkbenchesPlus
 
         private static GameObject _root;
         private static float _chipWidth = DefaultChipWidth;
+        // From the column's position to where the filter panel starts (the right edge of the column as it was
+        // placed before chips grew to the left), so the panel stays put whatever the chips' width.
+        private static float _panelOffset = DefaultChipWidth * 0.5f;
+        private static float _labelWidth;
+        private static string _labelWidthKey;
         private static string _builtProfileKey;
         private static readonly List<Button> Buttons = new List<Button>();
         private static readonly List<TMP_Text> Labels = new List<TMP_Text>();
@@ -277,6 +286,7 @@ namespace WorkbenchesPlus
 
             RectTransform rt = _root.transform as RectTransform;
             float width = DefaultChipWidth;
+            float right = 0f;
 
             if (repair != null)
             {
@@ -304,6 +314,7 @@ namespace WorkbenchesPlus
                 rt.anchoredPosition = new Vector2(
                     repair.anchoredPosition.x,
                     repairBottom - GapBelowRepair);
+                right = repair.anchoredPosition.x + (1f - repair.pivot.x) * repairW;
             }
             else
             {
@@ -316,6 +327,16 @@ namespace WorkbenchesPlus
             float widthOverride = LayoutOverrides.Get("categories.width", 0f);
             if (widthOverride > 20f)
                 width = widthOverride;
+
+            // The column grows to the left from the repair button's right edge. Centred on the button, a column
+            // wider than the button reached under the crafting panel's frame, which hid the labels' last letters.
+            float x = rt.anchoredPosition.x;
+            if (repair == null)
+                right = x + width * 0.5f;
+            float fitted = widthOverride > 20f ? width : FitLabels(width);
+            rt.anchoredPosition = new Vector2(right - fitted * 0.5f, rt.anchoredPosition.y);
+            _panelOffset = x + width * 0.5f - rt.anchoredPosition.x;
+            width = fitted;
             LayoutOverrides.Nudge(rt, "categories");
 
             if (Mathf.Abs(_chipWidth - width) > 0.5f)
@@ -332,6 +353,31 @@ namespace WorkbenchesPlus
                 if (p.Root != null && p.Root.activeSelf)
                     ArrangePanel(p, p.Root.transform as RectTransform, PanelHeight(p));
             }
+        }
+
+        /// <summary>
+        /// The chip width for the longest label of the chip set at the largest font size, between the given width and
+        /// MaxChipWidth (auto-size shrinks a label that is still too long). Every label counts, shown or not, so the
+        /// width doesn't change from station to station.
+        /// </summary>
+        private static float FitLabels(float width)
+        {
+            if (_labelWidthKey != _builtProfileKey)
+            {
+                _labelWidthKey = _builtProfileKey;
+                _labelWidth = 0f;
+                for (int i = 0; i < Labels.Count; i++)
+                {
+                    TMP_Text label = Labels[i];
+                    if (label == null || string.IsNullOrEmpty(label.text))
+                        continue;
+                    // measured at fontSizeMax while auto-size is on
+                    float w = label.GetPreferredValues(label.text).x;
+                    if (w > _labelWidth)
+                        _labelWidth = w;
+                }
+            }
+            return Mathf.Clamp(_labelWidth + LabelPadding, width, Mathf.Max(width, MaxChipWidth));
         }
 
         private static void Build(InventoryGui gui, RectTransform host)
@@ -810,7 +856,7 @@ namespace WorkbenchesPlus
             rootRt.anchorMax = column.anchorMax;
             rootRt.pivot = new Vector2(0.5f, 1f);
             rootRt.sizeDelta = new Vector2(PanelWidth, height);
-            rootRt.anchoredPosition = column.anchoredPosition + new Vector2(_chipWidth * 0.5f + 8f + PanelWidth * 0.5f, 0f);
+            rootRt.anchoredPosition = column.anchoredPosition + new Vector2(_panelOffset + 8f + PanelWidth * 0.5f, 0f);
             LayoutOverrides.Nudge(rootRt, "subpanel");
             rootRt.SetAsLastSibling();
         }
