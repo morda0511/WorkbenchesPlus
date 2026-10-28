@@ -13,7 +13,8 @@ namespace WorkbenchesPlus
     internal static class CategoryBar
     {
         // One chip set for every station (empty chips are hidden), so the bar is built once.
-        private const string ProfileKey = "chips";
+        // Chips are rebuilt when this changes: their labels and filter tooltips are in the mod's language.
+        private static string ProfileKey => "chips|" + Loc.Language;
 
         // Valheim gold (same as the section headers); active chip a bit brighter.
         private static readonly Color ChipGold = new Color(1f, 0.78f, 0.3f, 1f);

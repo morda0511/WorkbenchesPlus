@@ -253,7 +253,7 @@ namespace WorkbenchesPlus
             return new HeaderSlot
             {
                 Key = e.Info.GroupBand + "|" + e.Info.GroupOrder + "|" + e.Info.Group + "|" + e.CraftTier,
-                Label = e.Info.Group + GroupColors.BiomeSuffix(e.Info),
+                Label = Loc.Group(e.Info.Group) + GroupColors.BiomeSuffix(e.Info),
                 Color = MaterialSectionHeaders.HeaderGold
             };
         }

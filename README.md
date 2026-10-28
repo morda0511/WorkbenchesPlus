@@ -74,6 +74,7 @@ One file, `BepInEx/config/com.morda.workbenchesplus.cfg`:
 | Setting | Meaning |
 |:---|:---|
 | `EnableMod` | Master switch |
+| `Language` | Language of the mod's texts: `Auto` (the game's language, default) or any language from the game's settings |
 | `EnableCategories` | Category chips under the Repair button |
 | `ShowCraftabilityIndicators` | Green check on fully craftable rows (default off) |
 | `EnableCraftMultiplier` | Multi-craft arrows beside Craft |
