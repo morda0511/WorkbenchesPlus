@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1
+
+### UI IMPROVEMENTS
+- New icon and README
+
 ## 1.1.0
 
 ### NEW FEATURES

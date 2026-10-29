@@ -1,6 +1,6 @@
 {
     "name":  "WorkbenchesPlus",
-    "version_number":  "1.1.0",
+    "version_number":  "1.1.1",
     "website_url":  "https://github.com/morda0511/WorkbenchesPlus",
     "description":  "Find it in a second. Build farther. Break it back down. Sorted menus, search, categories, Dismantle tab, Shift+E build range up to 200 m.",
     "dependencies":  [
