@@ -1,32 +1,28 @@
-![Workbenches+ - Crafting menus that stay readable](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/workbenches-plus-banner.png)
+![Workbenches+ - Crafting menus that stay readable](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/WB+%20Banner.png)
 
 <br>
 
-**Sorted by material and biome. Found in a second.**
+**Find it in a second. Build farther. Break it back down.**
 
-Every station sorts its recipes the same way, with headers by material and biome, armor sets and weapon materials kept together. Category chips, a weapon filter, search, favorites, a Dismantle tab, build range and auto repair. Does not change recipes or crafting logic.
+Every station sorts the same way — material, biome, sets together. Search, categories, craft multiplier, and a Dismantle tab that returns gear to its materials. Shift+E stretches a station’s build range up to 200 m. Does not change recipes or crafting logic.
 
 > **Client-side.** Valheim 1.0 · BepInExPack 5.4.2350+ · Console players via crossplay cannot load the mod.
 
 [Bug reports](https://github.com/morda0511/WorkbenchesPlus/issues) · [Discord](https://discord.gg/aVKVVmyzj)
 
-![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/divider-norse.png)
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/dividers/divider-at-a-glance.png)
 
-## At a glance
-
-| ![Sorting](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-sorting-160.png) | ![Search](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-search-160.png) | ![Categories](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-categories-160.png) | ![Upgrade](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-upgrade-160.png) |
+| ![Sorting](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/glance-sorting-192.png) | ![Search](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/glance-search-192.png) | ![Categories](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/glance-categories-192.png) | ![Upgrade](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/glance-upgrade-192.png) |
 |:---:|:---:|:---:|:---:|
 | **Sorting**<br>By material, biome and set | **Search & favorites**<br>Type a name, right-click to pin | **Categories**<br>Chips per station, weapon filter symbols | **Upgrade**<br>New value next to the current one |
 
-| ![Dismantle](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-dismantle-160.png) | ![Multiplier](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-multiplier-160.png) | ![Build range](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-range-160.png) | ![Auto repair](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/icon-repair-160.png) |
+| ![Dismantle](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/glance-dismantle-192.png) | ![Multiplier](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/glance-multiplier-192.png) | ![Build range](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/glance-range-192.png) | ![Auto repair](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/glance-repair-192.png) |
 |:---:|:---:|:---:|:---:|
 | **Dismantle**<br>Break gear back into its materials | **Multiplier**<br>Arrows beside Craft, up to 99 | **Build range**<br>Shift+E: 50 to 200 m per station | **Auto repair**<br>Worn gear fixed one by one |
 
 **Works with:** Path of Valheiman · crafting stations from other mods (Warfare, ...)
 
-![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/divider-norse.png)
-
-## Sorting
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/dividers/divider-sorting.png)
 
 - Headers by material and biome (Wood, Bronze, Iron, Silver, Black Metal, Flametal, ...), in progression order.
 - Armor sets stay together (chest, helmet, legs, cape). Weapons of one material stay together, ordered by weapon type.
@@ -35,39 +31,37 @@ Every station sorts its recipes the same way, with headers by material and biome
 - Gear headers carry their biome, for example `Iron [Swamp]`. Food shows its strongest bar after the name: Health red, Stamina yellow, Eitr blue.
 - The Forge of Potential list is sorted too. Nothing to set up: one order for everything.
 
-## Categories and search
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/dividers/divider-categories-and-search.png)
 
 - **Chips** under the repair button: Weapons, Armor, Shields, Tools, Ammo, Magic, Health, Stamina, Eitr, Feasts, Prep, Fish, Bait, Potions, Cast, Materials, Trinkets, Clothes, Misc. Empty chips are hidden. **All** shows the current station only.
 - **Weapons** opens a box of symbols: 1-Hand, 2-Hand, Knives, Swords, Clubs, Axes, Spears, Polearms, Bows, Crossbows, Fists, Bombs. One symbol at a time; bows and crossbows only count under their own symbol.
 - **Search** at the right end of the tab row: filter by recipe name or header (type "iron" for the Iron block).
 - **Favorites:** right-click a recipe. Favorites form a block at the top of every list.
 
-## Crafting
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/dividers/divider-crafting.png)
 
 - **Upgrade tab** shows the current value next to the upgraded one, for example `Durability: 400 (now: 200)`.
 - **Multi-craft arrows** beside the Craft button set how many crafts to run (up to 99).
 
-## Dismantle
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/dividers/divider-dismantle.png)
 
 - A tab beside Craft / Upgrade: break station-crafted items back into their materials.
 - Shows exactly which materials you get back before you dismantle. The refund percentage is configurable.
 - Food and potions are never listed. Not available at the Forge of Potential.
 
-## Build range and auto repair
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/dividers/divider-build-range-and-auto-repair.png)
 
 - Look at a station the hammer needs (workbench, forge, ...) and press **Shift+E** to cycle its build range: default, 50, 100, 150, 200 m. Saved on the station, not possible inside someone else's ward.
 - **Auto repair** (off by default): worn armor, weapons and tools are repaired one at a time while you stand in a matching station's build range, once they drop to `AutoRepairBelowPercent` (default 90 %). Needs roof and fire like normal repair.
 
-## Path of Valheiman
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/dividers/divider-path-of-valheiman.png)
 
 - While its Salvage / Disenchant tab or its category grid is open, Workbenches+ steps aside.
 - Hover a recipe row to see the full Path of Valheiman item tooltip (rarity, stat ranges, tags).
 - The search field sits behind its extra tab and never sticks out of the window.
 - Optional `HidePathOfValheimanSalvage`: only Dismantle at normal stations. Disenchant at the Rune Carver Table always stays.
 
-![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/divider-norse.png)
-
-## Config
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/dividers/divider-config.png)
 
 One file, `BepInEx/config/com.morda.workbenchesplus.cfg`:
 
@@ -89,24 +83,20 @@ One file, `BepInEx/config/com.morda.workbenchesplus.cfg`:
 
 **Servers:** the mod is client-side and works on any server. Dismantle, build range and auto repair are decided on your client; each can be switched off.
 
-![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/divider-norse.png)
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/dividers/divider-more-mods-by-morda.png)
 
-## More mods by Morda
+| [![Store and Craft](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/logo-storeandcraft-192.png)](https://thunderstore.io/c/valheim/p/Morda/StoreAndCraft/) | [![Forager's Garden](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/logo-foragers-192.png)](https://thunderstore.io/c/valheim/p/Morda/ForagersGarden/) | [![Morda's Gearhold](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/logo-gearhold-192.png)](https://thunderstore.io/c/valheim/p/Morda/MordasGearhold/) | [![Valheim Mannequins](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/logo-mannequins-192.png)](https://thunderstore.io/c/valheim/p/Morda/ValheimMannequins/) |
+|:---:|:---:|:---:|:---:|
+| **[Store and Craft](https://thunderstore.io/c/valheim/p/Morda/StoreAndCraft/)** | **[Forager's Garden](https://thunderstore.io/c/valheim/p/Morda/ForagersGarden/)** | **[Morda's Gearhold](https://thunderstore.io/c/valheim/p/Morda/MordasGearhold/)** | **[Valheim Mannequins](https://thunderstore.io/c/valheim/p/Morda/ValheimMannequins/)** |
 
-| Mod | What it does |
-|:---|:---|
-| **[StoreAndCraft](https://thunderstore.io/c/valheim/p/Morda/StoreAndCraft/)** | A base that works with you: auto-store, dump, craft and build from chests, storage displays, feed trough, F10 settings panel |
-| **[Morda's Gearhold](https://thunderstore.io/c/valheim/p/Morda/MordasGearhold/)** | Three switchable equipment sets, shared inventory, 8 hotkey quickslots, ammo slots, trinkets, a weightless coin slot, transmog looks, armour dyes and weapon glow |
-| **[Forager's Garden](https://thunderstore.io/c/valheim/p/Morda/ForagersGarden/)** | Berry bushes, wild herbs and mushrooms with the Cultivator, plus Ice, Royal Jelly and Crystal beehives |
-| **[Valheim Mannequins](https://thunderstore.io/c/valheim/p/Morda/ValheimMannequins/)** | Player-shaped mannequins: dress them with real gear, pose and name them, keep several gear sets |
-| **[ServerRates](https://thunderstore.io/c/valheim/p/Morda/ServerRates/)** | Server-side rates for dedicated servers (PC and console), live apply, presets. Joining players need no install |
+| [![ServerRates](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/logo-serverrates-192.png)](https://thunderstore.io/c/valheim/p/Morda/ServerRates/) | [![Smooth Build Repair](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/logo-smoothbuildrepair-192.png)](https://thunderstore.io/c/valheim/p/Morda/SmoothBuildRepair/) | [![Any Angle](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/logo-anyangle-192.png)](https://thunderstore.io/c/valheim/p/Morda/AnyAngle/) | [![Easy Build Cam](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/logo-buildcam-192.png)](https://thunderstore.io/c/valheim/p/Morda/EasyBuildCam/) |
+|:---:|:---:|:---:|:---:|
+| **[ServerRates](https://thunderstore.io/c/valheim/p/Morda/ServerRates/)** | **[Smooth Build Repair](https://thunderstore.io/c/valheim/p/Morda/SmoothBuildRepair/)** | **[Any Angle](https://thunderstore.io/c/valheim/p/Morda/AnyAngle/)** | **[Easy Build Cam](https://thunderstore.io/c/valheim/p/Morda/EasyBuildCam/)** |
 
-![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/divider-norse.png)
-
-## Install
+![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/dividers/divider-install.png)
 
 1. Install [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/)
 2. Put `WorkbenchesPlus.dll` in `BepInEx/plugins/WorkbenchesPlus/` (or use Thunderstore / r2modman)
 3. Launch once to create the config file
 
-![](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/workbenches-plus-footer.png)
+![Workbenches+](https://raw.githubusercontent.com/morda0511/WorkbenchesPlus/main/thunderstore-assets/workbenches-plus/WB+%20Footer.png)
