@@ -5,6 +5,7 @@ namespace WorkbenchesPlus
     public class ModConfig
     {
         public ConfigEntry<bool> EnableMod { get; }
+        public ConfigEntry<string> Language { get; }
         public ConfigEntry<bool> EnableCategories { get; }
         public ConfigEntry<bool> ShowCraftabilityIndicators { get; }
         public ConfigEntry<bool> EnableCraftMultiplier { get; }
@@ -22,6 +23,10 @@ namespace WorkbenchesPlus
         {
             EnableMod = file.Bind("General", "EnableMod", true,
                 "Master switch for Workbenches+.");
+            Language = file.Bind("General", "Language", "Auto",
+                new ConfigDescription(
+                    "Language of the mod's own texts (chips, section headers, Dismantle, search). Auto: the game's language.",
+                    new AcceptableValueList<string>(LanguageChoices())));
 
             EnableCategories = file.Bind("Crafting menu", "EnableCategories", true,
                 "Show category chips under the Repair button.");
@@ -60,6 +65,14 @@ namespace WorkbenchesPlus
 
             DebugLogging = file.Bind("Debug", "DebugLogging", false,
                 "Writes a recipe dump (BepInEx/WorkbenchesPlus_recipes.tsv).");
+        }
+
+        private static string[] LanguageChoices()
+        {
+            var choices = new string[Loc.GameLanguages.Length + 1];
+            choices[0] = "Auto";
+            Loc.GameLanguages.CopyTo(choices, 1);
+            return choices;
         }
     }
 }

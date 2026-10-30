@@ -39,6 +39,10 @@ namespace WorkbenchesPlus
             EnsureBuilt(gui);
             if (_root == null)
                 return;
+            // The mod's language can change while the box exists.
+            TMP_Text placeholder = _input != null ? _input.placeholder as TMP_Text : null;
+            if (placeholder != null && placeholder.text != Loc.T("search"))
+                placeholder.text = Loc.T("search");
             Place(gui);
             _root.SetActive(true);
         }
@@ -93,7 +97,8 @@ namespace WorkbenchesPlus
             if (info == null)
                 return false;
             return info.SortName.IndexOf(Query, System.StringComparison.OrdinalIgnoreCase) >= 0
-                || info.Group.IndexOf(Query, System.StringComparison.OrdinalIgnoreCase) >= 0;
+                || info.Group.IndexOf(Query, System.StringComparison.OrdinalIgnoreCase) >= 0
+                || Loc.Group(info.Group).IndexOf(Query, System.StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static bool Allowed()

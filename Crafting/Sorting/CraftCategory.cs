@@ -54,7 +54,7 @@ namespace WorkbenchesPlus
 
         public static string Label(CraftCategory cat)
         {
-            return cat == CraftCategory.All ? "All" : cat.ToString();
+            return Loc.Category(cat);
         }
     }
 }

@@ -271,7 +271,7 @@ namespace WorkbenchesPlus
 
         private static string FormatMeters(float meters)
         {
-            return Mathf.RoundToInt(meters) + " m";
+            return Loc.Meters(meters);
         }
     }
 }
