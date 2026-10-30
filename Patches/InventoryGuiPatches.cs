@@ -244,6 +244,9 @@ namespace WorkbenchesPlus
                 SearchBox.Tick();
                 if (DismantleMode.Active)
                     DismantleTab.RefreshVisuals(__instance);
+                DismantleTab.UpdateGamepad(__instance);
+                CategoryBar.UpdateGamepad(__instance);
+                CraftMultiplierBar.UpdateGamepad(__instance);
             }
             catch
             {
