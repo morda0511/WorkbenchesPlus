@@ -53,6 +53,25 @@ namespace WorkbenchesPlus
             InventoryGui gui = InventoryGui.instance;
             Dictionary<string, LayoutOverrides.VEntry> wanted = Effective();
 
+            // The recipe list content is stretched to RecipeList, and the list was already sized for its
+            // rows. Resizing RecipeList here (the "sub" entry while the Weapons symbols show) would resize the
+            // content with it and cut rows off the end, so keep the content's height as it was.
+            RectTransform content = gui != null ? AccessToolsExt.RecipeListRoot(gui) : null;
+            float contentHeight = content != null ? content.rect.height : 0f;
+            try
+            {
+                ApplyAll(gui, wanted);
+            }
+            finally
+            {
+                if (content != null && Mathf.Abs(content.rect.height - contentHeight) > 0.01f)
+                    content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, contentHeight);
+            }
+        }
+
+        private static void ApplyAll(InventoryGui gui, Dictionary<string, LayoutOverrides.VEntry> wanted)
+        {
+
             // no longer wanted (file changed, or the sub-chip panel closed): put it back
             var drop = new List<string>();
             foreach (var kv in States)
